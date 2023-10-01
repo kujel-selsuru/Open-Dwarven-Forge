@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 23/10/01
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -57,21 +57,26 @@ namespace XenoLib
     /// <summary>
     /// SwitchBoard class
     /// </summary>
-    public class SwitchBoard
+    public static class SwitchBoard
     {
-        //protected
-        protected List<String> keys;
-        protected List<bool> switches;
+        //private
+        static List<String> keys;
+        static List<bool> switches;
 
         //public
         /// <summary>
         /// SwitchBoard from file constructor
         /// </summary>
         /// <param name="sr">StreamReader reference</param>
-        public SwitchBoard(StreamReader sr = null)
+        static SwitchBoard()
         {
             keys = new List<string>();
             switches = new List<bool>();
+            
+        }
+
+        public static void loadData(StreamReader sr = null)
+        {
             if (sr == null)
             {
                 //do nothing else here
@@ -91,7 +96,7 @@ namespace XenoLib
         /// </summary>
         /// <param name="key">SwitchNode name/key</param>
         /// <param name="node">reference for copy of SwitchNode</param>
-        public void seeSwitch(string key, out SwitchNode node)
+        public static void seeSwitch(string key, out SwitchNode node)
         {
             int temp = checkKey(key);
             if(temp == -1)
@@ -111,7 +116,7 @@ namespace XenoLib
         /// <param name="key">Name/key</param>
         /// <param name="newVal">Value to set to</param>
         /// <returns>Boolean</returns>
-        public bool setSwitch(string key, bool newVal)
+        public static bool setSwitch(string key, bool newVal)
         {
             int temp = checkKey(key);
             if(temp == -1)
@@ -130,7 +135,7 @@ namespace XenoLib
         /// <param name="key">Name/key</param>
         /// <param name="val">Initial state of new SwtichNode</param>
         /// <returns>Boolean</returns>
-        public bool addSwitch(string key, bool val)
+        public static bool addSwitch(string key, bool val)
         {
             int temp = checkKey(key);
             if (temp == -1)
@@ -149,7 +154,7 @@ namespace XenoLib
         /// </summary>
         /// <param name="key">Name/key</param>
         /// <returns>Int</returns>
-        public int checkKey(string key)
+        public static int checkKey(string key)
         {
             for(int i = 0; i < keys.Count; i++)
             {
@@ -164,7 +169,7 @@ namespace XenoLib
         /// Saves data
         /// </summary>
         /// <param name="sw">StreamWriter reference</param>
-        public void saveData(StreamWriter sw)
+        public static void saveData(StreamWriter sw)
         {
             sw.WriteLine(keys.Count.ToString());
             for (int i = 0; i < keys.Count; i++)
@@ -178,7 +183,7 @@ namespace XenoLib
         /// </summary>
         /// <param name="key">Name/key</param>
         /// <returns>Boolean</returns>
-        public bool viewSwitch(string key)
+        public static bool viewSwitch(string key)
         {
             if(keys.Contains(key))
             {
@@ -195,7 +200,7 @@ namespace XenoLib
         /// <summary>
         /// Keys property
         /// </summary>
-        public List<String> Keys
+        public static List<String> Keys
         {
             get { return keys; }
         }
