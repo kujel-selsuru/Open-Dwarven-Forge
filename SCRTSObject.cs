@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 08/10/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -107,6 +107,7 @@ namespace XenoLib
         ELLEVEN,
         TWELVE
     }
+    public enum TURRETTYPES { ORBITS = 0, FLIPS, FIXED };
 
     public class SCRTSObject : XenoSprite
     {
@@ -509,7 +510,7 @@ namespace XenoLib
         protected int maxHP;
         protected int maxShields;
         protected SCRTSStatus status;
-        protected bool orbits;
+        protected TURRETTYPES tt;
 
         //public 
         /// <summary>
@@ -562,7 +563,7 @@ namespace XenoLib
             maxHP = hp;
             status = null;
             Path = new List<Point2D>();
-            orbits = true;
+            tt = TURRETTYPES.ORBITS;
         }
         /// <summary>
         /// SCRTSUnit from file constructor 
@@ -623,7 +624,7 @@ namespace XenoLib
             maxHP = Convert.ToInt32(sr.ReadLine());
             maxShields = Convert.ToInt32(sr.ReadLine());
             status = new SCRTSStatus(sr);
-            orbits = Convert.ToBoolean(sr.ReadLine());
+            tt = (TURRETTYPES)Convert.ToInt32(sr.ReadLine());
         }
         /// <summary>
         /// SCRTSUnit copy constructor
@@ -674,7 +675,7 @@ namespace XenoLib
             maxHP = obj.MaxHP;
             maxShields = obj.MaxShields;
             status = obj.Status;
-            orbits = obj.Orbits;
+            tt = obj.TT;
         }
         /// <summary>
         /// Save data override
@@ -722,6 +723,7 @@ namespace XenoLib
             sw.WriteLine(maxHP);
             sw.WriteLine(maxShields);
             status.saveData(sw);
+            sw.WriteLine(Convert.ToInt32(tt));
         }
         /// <summary>
         /// Updates SCRTSUnit internal state
@@ -1124,7 +1126,7 @@ namespace XenoLib
                 {
                     if(path[pathIndex].Y > Y)
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.DOWNRIGHT)
                             {
@@ -1135,7 +1137,7 @@ namespace XenoLib
                     }
                     else if(path[pathIndex].Y < Y)
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.UPRIGHT)
                             {
@@ -1146,7 +1148,7 @@ namespace XenoLib
                     }
                     else
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.RIGHT)
                             {
@@ -1160,7 +1162,7 @@ namespace XenoLib
                 {
                     if (path[pathIndex].Y > Y)
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.DOWNLEFT)
                             {
@@ -1171,7 +1173,7 @@ namespace XenoLib
                     }
                     else if (path[pathIndex].Y < Y)
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.UPLEFT)
                             {
@@ -1182,7 +1184,7 @@ namespace XenoLib
                     }
                     else
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.LEFT)
                             {
@@ -1196,7 +1198,7 @@ namespace XenoLib
                 {
                     if (path[pathIndex].Y > Y)
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.DOWN)
                             {
@@ -1207,7 +1209,7 @@ namespace XenoLib
                     }
                     else
                     {
-                        if (orbits == true)
+                        if (tt != TURRETTYPES.ORBITS)
                         {
                             if (direct != DIRECT.UP)
                             {
@@ -1293,32 +1295,53 @@ namespace XenoLib
             }
         }
         /// <summary>
-        /// Orbits turrets around center of unit
+        /// Orbits turrets around center of unit (flips around center line if TURRETTYPE is FLIPS)
         /// </summary>
         /// <param name="dir">DIRECT enumeration</param>
         public void orbitTurrets(DIRECT dir)
         {
             float ang = 0;
-            for(int t = 0; t < turrets.Count; t++)
+            switch(tt)
             {
-                switch(dir)
-                {
-                    case DIRECT.UP:
-                        ang = 270 + turrets[t].Theta;
-                        break;
-                    case DIRECT.UPRIGHT:
-                        ang = 0 + turrets[t].Theta;
-                        break;
-                    case DIRECT.RIGHT:
-                        ang = 90 + turrets[t].Theta;
-                        break;
-                    case DIRECT.DOWNRIGHT:
-                        ang = 180 + turrets[t].Theta;
-                        break;
-                }
-                turrets[t].X = (float)Math.Cos(ang) * turrets[t].FromCenter + Center.X;
-                turrets[t].Y = (float)Math.Sin(ang) * turrets[t].FromCenter + Center.Y;
+                case TURRETTYPES.ORBITS:
+                    for (int t = 0; t < turrets.Count; t++)
+                    {
+                        switch (dir)
+                        {
+                            case DIRECT.UP:
+                                ang = 270 + turrets[t].Theta;
+                                break;
+                            case DIRECT.UPRIGHT:
+                                ang = 0 + turrets[t].Theta;
+                                break;
+                            case DIRECT.RIGHT:
+                                ang = 90 + turrets[t].Theta;
+                                break;
+                            case DIRECT.DOWNRIGHT:
+                                ang = 180 + turrets[t].Theta;
+                                break;
+                        }
+                        turrets[t].X = (float)Math.Cos(ang) * turrets[t].FromCenter + Center.X;
+                        turrets[t].Y = (float)Math.Sin(ang) * turrets[t].FromCenter + Center.Y;
+                    }
+                    break;
+                case TURRETTYPES.FLIPS:
+                    int dist = 0;
+                    for (int t = 0; t < turrets.Count; t++)
+                    {
+                        dist = (int)(centerLine() - turrets[t].X);
+                        turrets[t].X = turrets[t].X + (2 * dist);
+                    }
+                    break;
             }
+        }
+        /// <summary>
+        /// Returns the center line of object's hitbox
+        /// </summary>
+        /// <returns>Integer</returns>
+        public int centerLine()
+        {
+            return (int)(hitBox.X  + (hitBox.Width / 2));
         }
         /// <summary>
         /// Sets the target of specified ability and calls named ability
@@ -1807,12 +1830,12 @@ namespace XenoLib
             set { status = value; }
         }
         /// <summary>
-        /// Orbits property
+        /// TT property
         /// </summary>
-        public bool Orbits
+        public TURRETTYPES TT
         {
-            get { return orbits; }
-            set { orbits = value; }
+            get { return tt; }
+            set { tt = value; }
         }
     }
     public class SCRTSBuilding : SCRTSUnit
