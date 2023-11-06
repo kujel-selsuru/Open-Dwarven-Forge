@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 05/11/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -1000,6 +1000,21 @@ namespace XenoLib
                 }
             }
 
+        }
+        /// <summary>
+        /// Returns an array with double the elements while copying the passed array into it
+        /// </summary>
+        /// <param name="arr">T type array reference</param>
+        /// <returns>T type array</returns>
+        public static T[] expandArray(T[] arr)
+        {
+            int num = arr.Length * 2;
+            T[] tmp = new T[num];
+            for(int i = 0; i < arr.Length - 1; i++)
+            {
+                tmp[i] = arr[i];
+            }
+            return tmp;
         }
     }
 }
