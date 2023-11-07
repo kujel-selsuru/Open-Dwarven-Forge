@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 06/11/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -112,7 +112,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 found = false;
                 for (int i = 0; i < closed.Count; i++)
@@ -133,6 +133,7 @@ namespace XenoLib
                         }
                     }
                 }
+                */
                 if(found == true)
                 {
                     if(open.Count > 0)
@@ -192,7 +193,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -208,7 +209,7 @@ namespace XenoLib
                         }
                     }
                 }
-
+                */
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
                 {
@@ -260,7 +261,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -276,7 +277,7 @@ namespace XenoLib
                         }
                     }
                 }
-
+                */
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
                 {
@@ -330,7 +331,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -346,7 +347,7 @@ namespace XenoLib
                         }
                     }
                 }
-
+                */
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
                 {
@@ -401,7 +402,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -417,6 +418,7 @@ namespace XenoLib
                         }
                     }
                 }
+                */
 
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
@@ -473,7 +475,7 @@ namespace XenoLib
                 {
                     running = false;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -489,7 +491,7 @@ namespace XenoLib
                         }
                     }
                 }
-
+                */
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
                 {
@@ -541,7 +543,7 @@ namespace XenoLib
                 {
                     return true;
                 }
-
+                /*
                 //search closed for potentially shorter paths
                 for (int i = 0; i < closed.Count; i++)
                 {
@@ -557,6 +559,7 @@ namespace XenoLib
                         }
                     }
                 }
+                */
                 //while the open priority queue is not empty get the first node and set to current
                 if (open.Count == 0)
                 {
@@ -583,49 +586,49 @@ namespace XenoLib
             //up
             if (mg.isValidPoint((int)current.p.X, (int)current.p.Y - 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y - 1), end), (int)current.p.X, (int)current.p.Y - 1, current);
+                temp = addNode(current.p.IX, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y - 1), end), (int)current.p.X, (int)current.p.Y - 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //up right
             if (mg.isValidPoint((int)current.p.X + 1, (int)current.p.Y - 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y - 1), end), (int)current.p.X + 1, (int)current.p.Y - 1, current);
+                temp = addNode(current.p.IX + 1, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y - 1), end), (int)current.p.X + 1, (int)current.p.Y - 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //right
             if (mg.isValidPoint((int)current.p.X + 1, (int)current.p.Y))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y), end), (int)current.p.X + 1, (int)current.p.Y, current);
+                temp = addNode(current.p.IX + 1, current.p.IY, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y), end), (int)current.p.X + 1, (int)current.p.Y, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //right down
             if (mg.isValidPoint((int)current.p.X + 1, (int)current.p.Y + 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y + 1), end), (int)current.p.X + 1, (int)current.p.Y + 1, current);
+                temp = addNode(current.p.IX + 1, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y + 1), end), (int)current.p.X + 1, (int)current.p.Y + 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //down
             if (mg.isValidPoint((int)current.p.X, (int)current.p.Y + 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y + 1), end), (int)current.p.X, (int)current.p.Y + 1, current);
+                temp = addNode(current.p.IX, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y + 1), end), (int)current.p.X, (int)current.p.Y + 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //down left
             if (mg.isValidPoint((int)current.p.X - 1, (int)current.p.Y + 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y + 1), end), (int)current.p.X - 1, (int)current.p.Y + 1, current);
+                temp = addNode(current.p.IX - 1, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y + 1), end), (int)current.p.X - 1, (int)current.p.Y + 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //left 
             if (mg.isValidPoint((int)current.p.X - 1, (int)current.p.Y))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y), end), (int)current.p.X - 1, (int)current.p.Y, current);
+                temp = addNode(current.p.IX - 1, current.p.IY, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y), end), (int)current.p.X - 1, (int)current.p.Y, current);
                 open.enqueue(temp, temp.finalcost());
             }
             //left up
             if (mg.isValidPoint((int)current.p.X - 1, (int)current.p.Y - 1))
             {
-                temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), (int)current.p.X - 1, (int)current.p.Y - 1, current);
+                temp = addNode(current.p.IX - 1, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), (int)current.p.X - 1, (int)current.p.Y - 1, current);
                 open.enqueue(temp, temp.finalcost());
             }
         }
@@ -642,7 +645,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX, current.p.IY - 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y - 1), end), (int)current.p.X, (int)current.p.Y - 1, current);
+                    temp = addNode(current.p.IX, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y - 1), end), (int)current.p.X, (int)current.p.Y - 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -651,7 +654,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX + 1, current.p.IY - 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y - 1), end), (int)current.p.X + 1, (int)current.p.Y - 1, current);
+                    temp = addNode(current.p.IX + 1, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y - 1), end), (int)current.p.X + 1, (int)current.p.Y - 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -660,7 +663,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX + 1, current.p.IY))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y), end), (int)current.p.X + 1, (int)current.p.Y, current);
+                    temp = addNode(current.p.IX + 1, current.p.IY, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y), end), (int)current.p.X + 1, (int)current.p.Y, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -669,7 +672,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX + 1, current.p.IY + 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y + 1), end), (int)current.p.X + 1, (int)current.p.Y + 1, current);
+                    temp = addNode(current.p.IX + 1, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X + 1, current.p.Y + 1), end), (int)current.p.X + 1, (int)current.p.Y + 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -678,7 +681,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX, current.p.IY + 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y + 1), end), (int)current.p.X, (int)current.p.Y + 1, current);
+                    temp = addNode(current.p.IX, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X, current.p.Y + 1), end), (int)current.p.X, (int)current.p.Y + 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -687,7 +690,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX - 1, current.p.IY + 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y + 1), end), (int)current.p.X - 1, (int)current.p.Y + 1, current);
+                    temp = addNode(current.p.IX - 1, current.p.IY + 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y + 1), end), (int)current.p.X - 1, (int)current.p.Y + 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -696,7 +699,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX - 1, current.p.IY))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y), end), (int)current.p.X - 1, (int)current.p.Y, current);
+                    temp = addNode(current.p.IX - 1, current.p.IY, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y), end), (int)current.p.X - 1, (int)current.p.Y, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -705,7 +708,7 @@ namespace XenoLib
             {
                 if (mg.isValidPoint(current.p.IX - 1, current.p.IY - 1))
                 {
-                    temp = new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), (int)current.p.X - 1, (int)current.p.Y - 1, current);
+                    temp = addNode(current.p.IX - 1, current.p.IY - 1, current.moves, current, end);//new PathNode(current.moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), (int)current.p.X - 1, (int)current.p.Y - 1, current);
                     open.enqueue(temp, temp.finalcost());
                 }
             }
@@ -880,6 +883,41 @@ namespace XenoLib
                 newPath.Add(path[i]);
             }
             return newPath;
+        }
+        /// <summary>
+        /// Adds a node if no duplicates found in closed and replaces the original in closed if
+        /// it has a higher move count
+        /// </summary>
+        /// <param name="x">X position</param>
+        /// <param name="y">Y position</param>
+        /// <param name="moves">Number of moves</param>
+        /// <param name="current">Current PathNode reference</param>
+        /// <param name="end">End point</param>
+        /// <returns>PathNode</returns>
+        public PathNode addNode(int x, int y, int moves, PathNode current, Point2D end)
+        {
+            PathNode node = null;
+            bool found = false;
+            for(int i = 0; i < closed.Count - 1; i++)
+            {
+                if(closed[i].p.IX == x)
+                {
+                    if(closed[i].p.IY == y)
+                    {
+                        if(closed[i].moves > moves)
+                        {
+                            node = new PathNode(moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), x, y, current);
+                            closed[i] = node;
+                        }
+                        found = true;
+                    }
+                }
+            }
+            if (found == false && node == null)
+            {
+                node = new PathNode(moves + 1, Point2D.calculateDistance(new Point2D(current.p.X - 1, current.p.Y - 1), end), x, y, current);
+            }
+            return node;
         }
         /// <summary>
         /// MapGraph property
