@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 01/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -1646,6 +1646,134 @@ namespace XenoLib
             }
                 }
         /// <summary>
+        /// Removes doodads from Alpha cell in 3 radius sizes ("small", "medium", "large")
+        /// </summary>
+        /// <param name="world">OpenWorld reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="size">Size of radius ("small", "medium", "large")</param>
+        public void clearDoodadRadius(int x, int y, string size)
+        {
+            List<Point2D> points = null;
+            Point2D center = new Point2D(x, y);
+            switch (size)
+            {
+                case "small":
+                    points = getCircleArea(center, 7);
+                    break;
+                case "medium":
+                    points = getCircleArea(center, 10);
+                    break;
+                case "large":
+                    points = getCircleArea(center, 13);
+                    break;
+            }
+            for (int i = 0; i < points.Count - 1; i++)
+            {
+                for (int k = 0; k < doodads.Count - 1; k++)
+                {
+                    if (doodads[k].IX == points[i].IX &&
+                        doodads[k].IY == points[i].IY)
+                    {
+                        doodads.RemoveAt(k);
+                        break;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Gets a list of points generating a circle centered around a point
+        /// </summary>
+        /// <param name="center">Center of circle</param>
+        /// <param name="radius">Radius of circle</param>
+        /// <returns>List of Point2D objects</returns>
+        public List<Point2D> getCircleArea<T>(Point2D center, float radius)
+        {
+            List<Point2D> points = new List<Point2D>();
+            int width = (int)(radius * 2) + 1;
+            int height = (int)(radius * 2) + 1;
+            Point2D p = null;
+            for (int x = (int)(center.X - radius); x < (int)(center.X - radius - 1) + width; x++)
+            {
+                for (int y = (int)(center.Y - radius); y < (int)(center.Y - radius - 1) + height; y++)
+                {
+                    if (Helpers<int>.inDomain(x, y, tiles.Width, tiles.Height) == true)
+                    {
+                        p = new Point2D(x, y);
+                        if (insideCir(center, p, radius) == true)
+                        {
+                            points.Add(p);
+                        }
+                    }
+                }
+            }
+            //remove furthest left
+            int tmp = 0;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].X < points[tmp].X)
+                {
+                    tmp = i;
+                }
+            }
+            points.RemoveAt(tmp);
+            //remove furthest up
+            tmp = 0;
+            for (int i = 1; i < points.Count; i++)
+            {
+                if (points[i].Y < points[tmp].Y)
+                {
+                    tmp = i;
+                }
+            }
+            points.RemoveAt(tmp);
+            return points;
+        }
+        /// <summary>
+        /// Aids getCircleArea
+        /// </summary>
+        /// <param name="center">Center of circle</param>
+        /// <param name="p">Point to be checked</param>
+        /// <param name="radius">Radius of circle</param>
+        /// <returns>Boolean</returns>
+        protected bool insideCir(Point2D center, Point2D p, float radius)
+        {
+            float dx = center.X - p.X;
+            float dy = center.Y - p.Y;
+            float dist = (dx * dx) + (dy * dy);
+            if (dist <= radius * radius)
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Returns true if a space with a one tile radius is clear
+        /// </summary>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="w">Width in tiles</param>
+        /// <param name="h">Height in tiles</param>
+        /// <returns>Boolean</returns>
+        public bool spaceClear(int x, int y, int w, int h)
+        {
+            int w2 = w + 2;
+            int h2 = h + 2;
+            int x2 = x - (w / 2) - 1;
+            int y2 = y - (h / 2) - 1;
+            for(int xx = x2; xx < x2 + w2; xx++)
+            {
+                for(int yy = y2; yy < y2 + h2; yy++)
+                {
+                    if(localMG.getCell(xx, yy) == true)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        /// <summary>
         /// Cellx property
         /// </summary>
         public int CellX
@@ -1812,6 +1940,13 @@ namespace XenoLib
         public MapGraph LocalMG
         {
             get { return localMG; }
+        }
+        /// <summary>
+        /// Doodads property
+        /// </summary>
+        public List<XenoDoodad> Doodads
+        {
+            get { return doodads; }
         }
     }
     /// <summary>
@@ -4245,6 +4380,37 @@ namespace XenoLib
         public int TileHeight
         {
             get { return tileHeight; }
+        }
+        /// <summary>
+        /// WorldWidth property
+        /// </summary>
+        public int WorldWidth
+        {
+            get { return worldWidth; }
+            //set { worldWidth = value; }
+        }
+        /// <summary>
+        /// WorldHeight property
+        /// </summary>
+        public int WorldHeight
+        {
+            get { return worldHeight; }
+            //set { worldHeight = value; }
+        }
+        /// <summary>
+        /// WorldWidthPixels property
+        /// </summary>
+        public int WorldWidthPixels
+        {
+            get { return worldWidth * cellWidth * tileWidth; }
+        }
+        /// <summary>
+        /// WorldHeightPixels property
+        /// </summary>
+        public int WorldHeightPixels
+        {
+            get { return worldHeight * cellHeight * tileHeight; }
+            //set { worldHeight = value; }
         }
         /// <summary>
         /// WinWidth property

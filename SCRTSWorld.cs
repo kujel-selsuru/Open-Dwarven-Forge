@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 12/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -566,6 +566,32 @@ namespace XenoLib
                 }
             }
         }
+        /// <summary>
+        /// Returns true if no resources in area with one tile radius else returns false
+        /// </summary>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="w">Width in tiles</param>
+        /// <param name="h">Height in tiles</param>
+        /// <returns>Boolean</returns>
+        public bool noResources(int x, int y, int w, int h)
+        {
+            int x2 = x - (w / 2) - 1;
+            int y2 = y - (h / 2) - 1;
+            int w2 = w + 2;
+            int h2 = h + 2;
+            for(int xx = x2; xx < x2 + w2; xx++)
+            {
+                for(int yy = y2; yy < y2 + h2; yy++)
+                {
+                    if(resourceGrid.Fields.Grid[xx, yy] != null)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         /*
         /// <summary>
         /// Clears doodads from doodadLayer
@@ -689,8 +715,10 @@ namespace XenoLib
 
         //public
 
-        public RTSWorld(Texture2D tileSrc, Texture2D autoTileSrc) : 
-            base(tileSrc, autoTileSrc, 300, 300, 0, 0, 23, 20, 32, 32, 300, 300)
+        public RTSWorld(Texture2D tileSrc, Texture2D autoTileSrc, int tileWidth = 32, int tileHeight = 32, 
+            int cellWidth = 300, int cellHeight = 300, int worldWidth = 300, int worldHeight = 300) : 
+            base(tileSrc, autoTileSrc, cellWidth, cellHeight, 0, 0, 23, 20, tileWidth, tileHeight, 
+                worldWidth, worldHeight)
         {
             window = new Rectangle(0, 0, winWidth, winHeight);
             commanders = new List<SCRTSCommander>();

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace XenoLib
 {
-    public enum OBJECTTYPE { ot_unit = 0, ot_building, ot_action, ot_effect };
+    public enum OBJECTTYPE { ot_unit = 0, ot_building, ot_action, ot_effect, ot_none };
     /// <summary>
     /// A class that stores and builds build unit commands in buildings/units
     /// </summary>
