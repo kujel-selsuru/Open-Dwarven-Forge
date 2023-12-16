@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 16/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -279,6 +279,9 @@ namespace XenoLib
         protected Rectangle box2;
         protected string name;
         protected CoolDown cool;
+        protected int toolTipCounter;
+        protected Rectangle toolTipBox;
+        protected bool toolTipCleared;
         protected SDL.SDL_Color black;
 
         //public
@@ -303,6 +306,9 @@ namespace XenoLib
             black.g = 0;
             black.b = 0;
             black.a = 1;
+            toolTipCounter = 0;
+            toolTipCleared = false;
+            toolTipBox = new Rectangle(0, 0, 32 * name.Length, 32);
         }
         /// <summary>
         /// SimpleButton4 contsructor
@@ -326,6 +332,9 @@ namespace XenoLib
             black.g = 0;
             black.b = 0;
             black.a = 1;
+            toolTipCounter = 0;
+            toolTipCleared = false;
+            toolTipBox = new Rectangle(0, 0, 32 * name.Length, 32);
         }
         /// <summary>
         /// Updates internal state
@@ -333,6 +342,32 @@ namespace XenoLib
         public void update()
         {
             cool.update();
+        }
+        /// <summary>
+        /// Updates toolTipCounter
+        /// </summary>
+        /// <param name="x">Mouse X position</param>
+        /// <param name="y">Mouse Y position</param>
+        /// <param name="seconds">Max seconds(frames) till tool tip clears</param>
+        public void updateToolTip(int x, int y, int seconds = (25 * 60))
+        {
+            if(box2.pointInRect(x, y) == true)
+            {
+                if(toolTipCleared == false)
+                {
+                    toolTipCounter++;
+                }
+            }
+            else
+            {
+                toolTipCounter = 0;
+                toolTipCleared = false;
+            }
+            if(toolTipCounter >= seconds)
+            {
+                toolTipCounter = 0;
+                toolTipCleared = true;
+            }
         }
         /// <summary>
         /// Checks if button clicked
@@ -429,6 +464,25 @@ namespace XenoLib
             int mid = SimpleFont.stringRenderWidth(name, 0.75f) / 2;
             int mid2 = (int)((32 * 0.75) / 2);
             SimpleFont.DrawString(renderer, name, box2.X + ((box2.Width / 2) - mid), box2.Y + (box2.Height / 2) - mid2, 0.75f);//sb.DrawString(font, name, new Vector2(X + 2, Y + 2), Color.White);
+        }
+        /// <summary>
+        /// Draws button name as a tool tip after a set number of frames
+        /// </summary>
+        /// <param name="renderer">IntPtr reference</param>
+        /// <param name="x">Mouse X position</param>
+        /// <param name="y">Mouse Y position</param>
+        /// <param name="seconds">Seconds(frames) till tool tip appears</param>
+        /// <param name="scale">Scaling value</param>
+        public void drawToolTip(IntPtr renderer, int x, int y, int seconds = (5 * 60), float scale = 0.75f)
+        {
+            if(toolTipCounter >= seconds && toolTipCleared == false)
+            {
+                toolTipBox.IX = x;
+                toolTipBox.IY = y;
+                toolTipBox.Width = SimpleFont.stringRenderWidth(name, scale);
+                DrawRects.drawRect(renderer, toolTipBox, ColourBank.getColour(XENOCOLOURS.BLACK), true);
+                SimpleFont.drawColourString(renderer, name, x, y, "white", 0.75f);
+            }
         }
         /// <summary>
         /// Resets button state

@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 16/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -170,6 +170,9 @@ namespace XenoLib
         protected string name;
         protected Rectangle srcRect;
         protected Rectangle destRect;
+        protected Rectangle toolTipBox;
+        protected int toolTipCounter;
+        protected bool toolTipCleared;
         protected CoolDown delay;
         protected Rectangle clickBox;
 
@@ -194,6 +197,9 @@ namespace XenoLib
             destRect = new Rectangle(x, y, w, h);
             this.delay = new CoolDown(delay);
             clickBox = new Rectangle(0, 0, 1, 1);
+            toolTipBox = new Rectangle(0, 0, w * name.Length, h);
+            toolTipCleared = false;
+            toolTipCounter = 0;
         }
         /// <summary>
         /// Updates Radio/button internal state
@@ -250,6 +256,32 @@ namespace XenoLib
             }
         }
         /// <summary>
+        /// Updates toolTipCounter
+        /// </summary>
+        /// <param name="x">Mouse X position</param>
+        /// <param name="y">Mouse Y position</param>
+        /// <param name="seconds">Max seconds(frames) till tool tip clears</param>
+        public void updateToolTip(int x, int y, int seconds = (25 * 60))
+        {
+            if (destRect.pointInRect(x, y) == true)
+            {
+                if (toolTipCleared == false)
+                {
+                    toolTipCounter++;
+                }
+            }
+            else
+            {
+                toolTipCounter = 0;
+                toolTipCleared = false;
+            }
+            if (toolTipCounter >= seconds)
+            {
+                toolTipCounter = 0;
+                toolTipCleared = true;
+            }
+        }
+        /// <summary>
         /// Draws just the RadioButton
         /// </summary>
         /// <param name="renderer">Renderer reference</param>
@@ -273,6 +305,25 @@ namespace XenoLib
         public void drawName(IntPtr renderer, float scaler = 1)
         {
             SimpleFont.DrawString(renderer, name, destRect.X + destRect.Width, destRect.Y, scaler);
+        }
+        /// <summary>
+        /// Draws button name as a tool tip after a set number of frames
+        /// </summary>
+        /// <param name="renderer">IntPtr reference</param>
+        /// <param name="x">Mouse X position</param>
+        /// <param name="y">Mouse Y position</param>
+        /// <param name="seconds">Seconds(frames) till tool tip appears</param>
+        /// <param name="scale">Scaling value</param>
+        public void drawToolTip(IntPtr renderer, int x, int y, int seconds = (5 * 60), float scale = 0.75f)
+        {
+            if (toolTipCounter >= seconds && toolTipCleared == false)
+            {
+                toolTipBox.IX = x;
+                toolTipBox.IY = y;
+                toolTipBox.Width = SimpleFont.stringRenderWidth(name, scale);
+                DrawRects.drawRect(renderer, toolTipBox, ColourBank.getColour(XENOCOLOURS.BLACK), true);
+                SimpleFont.drawColourString(renderer, name, x, y, "white", 0.75f);
+            }
         }
         /// <summary>
         /// State property
