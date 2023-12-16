@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 16/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -1554,6 +1554,128 @@ namespace XenoLib
         public int Count
         {
             get { return files.Count; }
+        }
+    }
+
+    public class FolderExplorer : TextFileExplorer
+    {
+        //protected
+
+        //public
+        FolderExplorer(int x, int y, int w, int h, Texture2D downButtonPressed,
+            Texture2D downButtonDepressed, Texture2D upButtonPressed,
+            Texture2D upButtonDepressed, Texture2D backButtonPressed,
+            Texture2D backButtonDepressed, Texture2D exitButton,
+            int size = 9, int shift = 32, int delay = 120) : base(x, y, w, h, downButtonPressed, 
+                downButtonDepressed, upButtonPressed, upButtonDepressed, backButtonPressed, 
+                backButtonDepressed, exitButton, size, shift, delay)
+        {
+
+        }
+        /// <summary>
+        /// Updates internal state (returns no file names)
+        /// </summary>
+        /// <param name="cursor">SimpleCursor reference</param>
+        public void update4(SimpleCursor cursor)
+        {
+            string temp = "";
+            if (!cool.Active)
+            {
+                temp = fileList.update(cursor.getMBS(), cursor.Box);
+            }
+            if (temp != "")
+            {
+                cool.activate();
+                if (System.IO.Directory.Exists(path + temp))
+                {
+                    temp = path + temp;
+                }
+                else
+                {
+                    temp = path + "\\" + temp;
+                }
+                if (System.IO.Directory.Exists(temp))
+                {
+                    try
+                    {
+                        path = temp;
+                        fileList.Clear();
+                        string[] fileNames = System.IO.Directory.GetDirectories(temp);
+                    }
+                    catch (Exception)
+                    {
+                        char[] spliter = { '\\' };
+                        string[] temp2 = StringParser.parse(path, spliter);
+                        path = buildPath(temp2, temp2.Length - 2);
+                    }
+                }
+            }
+            string temp4 = "";
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                temp4 = buttons[i].click();
+                if (temp4 != "")
+                {
+                    switch (temp4)
+                    {
+                        case "done":
+                            done = true;
+                            break;
+                        case "back":
+                            if (path != "" && path != " ")
+                            {
+                                char[] spliter = { '\\' };
+                                string[] temp5 = StringParser.parse(path, spliter);
+                                if (temp5.Length > 1)
+                                {
+                                    path = buildPath(temp5, temp5.Length - 2);
+                                    if (path != "" && path != " ")
+                                    {
+                                        lastPath = path;
+                                    }
+                                }
+                                if (path == "" || path == " ")
+                                {
+                                    path = lastPath;
+                                }
+                                fileList.Clear();
+                                string[] fileNames = System.IO.Directory.GetDirectories(path);
+                                for (int v = 0; v < fileNames.Length; v++)
+                                {
+                                    char[] spliter2 = { '\\' };
+                                    string[] temp2 = StringParser.parse(fileNames[v], spliter2);
+                                    fileList.addOption(temp2[temp2.Length - 1]);
+                                }
+                            }
+                            else
+                            {
+                                path = lastPath;
+                            }
+                            break;
+                    }
+                    break;
+                }
+            }
+            if (buttons[1].clicked() == true)
+            {
+                if (fileList.Start + fileList.Range < fileList.Index)
+                {
+                    fileList.Start++;
+                }
+            }
+            if (buttons[2].clicked() == true)
+            {
+                if (fileList.Start > 0)
+                {
+                    fileList.Start--;
+                }
+            }
+            buttons[0].update();
+            buttons[1].update();
+            buttons[2].update();
+            cool.update();
+            //buttons[1].update();
+
         }
     }
 }
