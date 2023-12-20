@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 01/12/23
+//Last Updated 20/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -2002,6 +2002,8 @@ namespace XenoLib
         protected int shiftRight;
         protected int shiftDown;
         protected string saveFolderPath;
+        protected string planet;
+        protected bool isPlanet;
         //interior variables \/\/\/
         protected int interX;
         protected int interY;
@@ -2011,8 +2013,27 @@ namespace XenoLib
         //interior variables /\/\/\
 
         //public
+        /// <summary>
+        /// OpenWorld constructor
+        /// </summary>
+        /// <param name="source">Tile source Texture2D reference</param>
+        /// <param name="autoSource">AutoTile source Texture2D reference</param>
+        /// <param name="cellWidth">Cell width in tiles</param>
+        /// <param name="cellHeight">Cell height in tiles</param>
+        /// <param name="winx">Window X position in pixels</param>
+        /// <param name="winy">Window Y position in pixels</param>
+        /// <param name="winWidth">Window width in tiles</param>
+        /// <param name="winHeight">Window height in tiles</param>
+        /// <param name="tileWidth">Tile width in pixels</param>
+        /// <param name="tileHeight">Tile height in pixels</param>
+        /// <param name="worldWidth">World width in cells</param>
+        /// <param name="worldHeight">World height in cells</param>
+        /// <param name="inputDelay">Input delay value</param>
+        /// <param name="planet">Planet name</param>
+        /// <param name="isPlanet">IsPlanet flag value</param>
         public OpenWorld(Texture2D source, Texture2D autoSource, int cellWidth, int cellHeight, int winx, int winy, 
-            int winWidth, int winHeight, int tileWidth, int tileHeight, int worldWidth, int worldHeight, int inputDelay = 1)
+            int winWidth, int winHeight, int tileWidth, int tileHeight, int worldWidth, int worldHeight, int inputDelay = 1, 
+            string planet = "", bool isPlanet = false)
         {
             alpha = null;
             beta = null;
@@ -2060,6 +2081,8 @@ namespace XenoLib
             saveFolderPath = "";
             interSource = source;
             interAutoSource = autoSource;
+            this.planet = planet;
+            this.isPlanet = isPlanet;
         }
         /// <summary>
         /// Draws Openworld
@@ -2909,8 +2932,17 @@ namespace XenoLib
             {
                 path = AppDomain.CurrentDomain.BaseDirectory;
             }
-            path += "cell_" + cx + "_" + cy + ".owc";
-            StreamReader sr = new StreamReader(path);
+            StreamReader sr;
+            if(isPlanet == true)
+            {
+                path += planet + "\\" + "cell_" + cx + "_" + cy + ".owc";
+                sr = new StreamReader(path);
+            }
+            else
+            {
+                path += "cell_" + cx + "_" + cy + ".owc";
+                sr = new StreamReader(path);
+            }
             OpenWorldCell cell = new OpenWorldCell(source, autoSource, winWidth, winHeight, sr);
             sr.Close();
             //cell name is "cell_(cx value)_(cy value).owc"
@@ -2928,8 +2960,16 @@ namespace XenoLib
             {
                 path = AppDomain.CurrentDomain.BaseDirectory;
             }
-            path += "cell_" + name + ".owc";
-            StreamReader sr = new StreamReader(path);
+            StreamReader sr;
+            if (isPlanet == true)
+            {
+                path += planet + "\\" + "cell_" + name + ".owc";
+                sr = new StreamReader(path);
+            }
+            else
+            {
+                sr = new StreamReader(path);
+            }
             OpenWorldCell cell = new OpenWorldCell(interSource, interAutoSource, winWidth, winHeight, sr);
             sr.Close();
             //cell name is "cell_(name).owc"
@@ -2995,7 +3035,14 @@ namespace XenoLib
             {
                 cellName = alpha.CellX + "_" + alpha.CellY;
             }
-            alpha.saveData(savePath, cellName, saveAuto);
+            if (isPlanet == true)
+            {
+                alpha.saveData(savePath + planet + "\\", cellName, saveAuto);
+            }
+            else
+            {
+                alpha.saveData(savePath, cellName, saveAuto);
+            }
             alpha = null;
             if (beta != null)
             {
@@ -3007,7 +3054,14 @@ namespace XenoLib
                 {
                     cellName = beta.CellX + "_" + beta.CellY;
                 }
-                beta.saveData(savePath, cellName, saveAuto);
+                if (isPlanet == true)
+                {
+                    beta.saveData(savePath + planet + "\\", cellName, saveAuto);
+                }
+                else
+                {
+                    beta.saveData(savePath, cellName, saveAuto);
+                }
             }
             beta = null;
             if (delta != null)
@@ -3020,7 +3074,14 @@ namespace XenoLib
                 {
                     cellName = delta.CellX + "_" + delta.CellY;
                 }
-                delta.saveData(savePath, cellName, saveAuto);
+                if (isPlanet == true)
+                {
+                    delta.saveData(savePath + planet + "\\", cellName, saveAuto);
+                }
+                else
+                {
+                    delta.saveData(savePath, cellName, saveAuto);
+                }
             }
             delta = null;
             if (gamma != null)
@@ -3033,7 +3094,14 @@ namespace XenoLib
                 {
                     cellName = gamma.CellX + "_" + gamma.CellY;
                 }
-                gamma.saveData(savePath, cellName, saveAuto);
+                if (isPlanet == true)
+                {
+                    gamma.saveData(savePath + planet + "\\", cellName, saveAuto);
+                }
+                else
+                {
+                    gamma.saveData(savePath, cellName, saveAuto);
+                }
             }
             gamma = null;
         }
@@ -3150,7 +3218,14 @@ namespace XenoLib
             addPortalToCell(dungeon, 49 * tileWidth, 10 * tileHeight, 0, 0, 93 * 32, 95 * 32, "", false);
             //save dungeon
             //savePath += name + ".owc";
-            dungeon.saveData(savePath, name, saveAuto);
+            if (isPlanet == true)
+            {
+                dungeon.saveData(savePath + planet + "\\", name, saveAuto);
+            }
+            else
+            {
+                dungeon.saveData(savePath, name, saveAuto);
+            }
         }
         /// <summary>
         /// Centers window on a position in world
@@ -4640,6 +4715,22 @@ namespace XenoLib
         public OpenWorldCell Gamma
         {
             get { return gamma; }
+        }
+        /// <summary>
+        /// Planet property
+        /// </summary>
+        public string Planet
+        {
+            get { return planet; }
+            set { planet = value; }
+        }
+        /// <summary>
+        /// IsPlanet property
+        /// </summary>
+        public bool IsPlanet
+        {
+            get { return isPlanet; }
+            set { isPlanet = value; }
         }
     }
 }
