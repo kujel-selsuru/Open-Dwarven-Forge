@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 07/01/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -290,7 +290,7 @@ namespace XenoLib
                     case SDL.SDL_Keycode.SDLK_BACKSLASH:
                         keyStates[82] = true;
                         break;
-                    case SDL.SDL_Keycode.SDLK_COLON:
+                    case SDL.SDL_Keycode.SDLK_SEMICOLON:
                         keyStates[83] = true;
                         break;
                     case SDL.SDL_Keycode.SDLK_QUOTE:
@@ -551,7 +551,7 @@ namespace XenoLib
                     case SDL.SDL_Keycode.SDLK_BACKSLASH:
                         keyStates[82] = false;
                         break;
-                    case SDL.SDL_Keycode.SDLK_COLON:
+                    case SDL.SDL_Keycode.SDLK_SEMICOLON:
                         keyStates[83] = false;
                         break;
                     case SDL.SDL_Keycode.SDLK_QUOTE:
@@ -735,7 +735,7 @@ namespace XenoLib
                     return keyStates[81];
                 case SDL.SDL_Keycode.SDLK_BACKSLASH:
                     return keyStates[82];
-                case SDL.SDL_Keycode.SDLK_COLON:
+                case SDL.SDL_Keycode.SDLK_SEMICOLON:
                     return keyStates[83];
                 case SDL.SDL_Keycode.SDLK_QUOTE:
                     return keyStates[84];

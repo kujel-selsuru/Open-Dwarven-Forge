@@ -30,7 +30,7 @@ namespace XenoLib
         /// <param name="x">X position</param>
         /// <param name="y">Y position</param>
         /// <param name="ticks">Input delay value</param>
-        public SimpleStringBuilder(int x = 100, int y = 100, int ticks = 4)
+        public SimpleStringBuilder(int x = 100, int y = 100, int ticks = 60)
         {
             delay = new CoolDown(ticks);
             point = new Point2D(x, y);
@@ -227,7 +227,7 @@ namespace XenoLib
                     }
                     else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_QUOTE))
                     {
-                        sequence += " ";
+                        sequence += "\"";
                         delay.activate();
                     }
                     else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_PERIOD))
@@ -248,6 +248,21 @@ namespace XenoLib
                     else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_SLASH))
                     {
                         sequence += "|";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_MINUS))
+                    {
+                        sequence += "_";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_EQUALS))
+                    {
+                        sequence += "+";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_SEMICOLON))
+                    {
+                        sequence += ":";
                         delay.activate();
                     }
                 }
@@ -466,6 +481,21 @@ namespace XenoLib
                     else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_RETURN))
                     {
                         sequence += "\n";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_MINUS))
+                    {
+                        sequence += "-";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_EQUALS))
+                    {
+                        sequence += "=";
+                        delay.activate();
+                    }
+                    else if (KeyboardHandler.getKeyState(SDL.SDL_Keycode.SDLK_SEMICOLON))
+                    {
+                        sequence += ";";
                         delay.activate();
                     }
                 }

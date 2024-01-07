@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 16/12/23
+//Last Updated 07/01/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -400,6 +400,25 @@ namespace XenoLib
                 if (!cool.Active)
                 {
                     if (box2.intersects(mBox))
+                    {
+                        cool.activate();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Checks if button clicked
+        /// </summary>Boolean</returns>
+        public bool clicked2()
+        {
+            Point2D p = new Point2D(MouseHandler.getMouseX(), MouseHandler.getMouseY());
+            if(MouseHandler.getLeft() == true)
+            {
+                if(cool.Active == false)
+                {
+                    if(box2.pointInRect(p) == true)
                     {
                         cool.activate();
                         return true;
