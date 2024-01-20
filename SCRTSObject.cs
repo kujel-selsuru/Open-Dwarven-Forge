@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 08/10/23
+//Last Updated 12/04/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -34,6 +34,7 @@ namespace XenoLib
         MISSILE,
         BOMB,
         BUFF,
+        BULLET,
         DEBUFF,
         HARVEST,
         BUILD,
@@ -47,7 +48,7 @@ namespace XenoLib
         AIR,
         BUILDING,
         RESOURCE,
-        HEX,
+        TILE,
         NONE
     }
     public enum ABILITIES
@@ -107,7 +108,13 @@ namespace XenoLib
         ELLEVEN,
         TWELVE
     }
-    public enum TURRETTYPES { ORBITS = 0, FLIPS, FIXED };
+    public enum TURRETTYPES
+    {
+        ORBITS = 0,
+        FLIPS,
+        FIXED,
+        NONE
+    };
 
     public class SCRTSObject : XenoSprite
     {
@@ -3439,6 +3446,7 @@ namespace XenoLib
         protected int lifeSpent;
         protected Counter counter;
         protected string particleName;
+        protected bool isAir;
 
         //public
         /// <summary>
@@ -3453,7 +3461,8 @@ namespace XenoLib
         /// <param name="sourceName">Source name value</param>
         /// <param name="hp">Hitpoint value</param>
         public SCRTSParticle(string name, float x, float y, int width,
-            int height, int numFrames, string sourceName, int hp = 100, int lifeSpan = 100) :
+            int height, int numFrames, string sourceName, int hp = 100, int lifeSpan = 100,
+            bool isAir = false) :
             base(name, x, y, width, height, numFrames, sourceName, hp)
         {
             this.lifeSpan = lifeSpan;
@@ -3467,6 +3476,7 @@ namespace XenoLib
             {
                 particleName = name;
             }
+            this.isAir = isAir;
         }
         /// <summary>
         /// SCRTSParticle from file constructor 
@@ -3479,6 +3489,14 @@ namespace XenoLib
             lifeSpent = Convert.ToInt32(sr.ReadLine());
             counter = new Counter(Convert.ToInt32(sr.ReadLine()));
             particleName = sr.ReadLine();
+            if(sr.ReadLine() == "TRUE")
+            {
+                isAir = true;
+            }
+            else
+            {
+                isAir = false;
+            }
         }
         /// <summary>
         /// SCRTSParticle copy constructor
@@ -3490,6 +3508,7 @@ namespace XenoLib
             lifeSpent = obj.LifeSpent;
             counter = new Counter(obj.Ticks.Max);
             particleName = obj.ParticleName;
+            isAir = obj.IsAir;
         }
         /// <summary>
         /// Save data override
@@ -3503,6 +3522,14 @@ namespace XenoLib
             sw.WriteLine(LifeSpent);
             sw.WriteLine(counter.Max);
             sw.WriteLine(particleName);
+            if(isAir == true)
+            {
+                sw.WriteLine("TRUE");
+            }
+            else
+            {
+                sw.WriteLine("FALSE");
+            }
         }
         /// <summary>
         /// Updates SCRTSParticle internal state
@@ -3578,6 +3605,14 @@ namespace XenoLib
         {
             get { return particleName; }
             set { particleName = value; }
+        }
+        /// <summary>
+        /// IsAir property
+        /// </summary>
+        public bool IsAir
+        {
+            get { return isAir; }
+            set { isAir = value; }
         }
     }
     public class SCRTSDoodad : SCRTSObject
