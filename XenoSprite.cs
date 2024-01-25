@@ -397,6 +397,39 @@ namespace XenoLib
             }
         }
         /// <summary>
+        /// Draws XenoSprite scaled 
+        /// </summary>
+        /// <param name="renderer">Renderer reference</param>
+        /// <param name="winx">Window x offset</param>
+        /// <param name="winy">Window y offset</param>
+        /// <param name="drawScaler">Draw scaler value</param>
+        public virtual void drawScaled(IntPtr renderer, int winx = 0, int winy = 0, float drawScaler = 1.0f)
+        {
+            destRect.x = (int)hitBox.X - winx;
+            destRect.y = (int)hitBox.Y - winy;
+            destRect.w = (int)(srcRect.w * drawScaler);
+            destRect.h = (int)(srcRect.h * drawScaler);
+            srcRect.x = frame * srcRect.w;
+            srcRect.y = ((int)direct) * srcRect.h;
+            SimpleDraw.draw(renderer, source, srcRect, destRect);
+            if (!still)
+            {
+                if (frameDelay.tick())
+                {
+                    if (frame < numFrames - 1)
+                    {
+                        frame++;
+                    }
+                    else
+                    {
+                        frame = 0;
+                    }
+                }
+            }
+            destRect.w = srcRect.w;
+            destRect.h = srcRect.h;
+        }
+        /// <summary>
         /// Draws a XenoSprite's path
         /// </summary>
         /// <param name="renderer">Renderer reference</param>
@@ -457,6 +490,40 @@ namespace XenoLib
                     }
                 }
             }
+        }
+        /// <summary>
+        /// Draws XenoSprite at a specified angle
+        /// </summary>
+        /// <param name="renderer">Renderer reference</param>
+        /// <param name="angle">Angle of rotation (in degrees)</param>
+        /// <param name="winx">Window x offset</param>
+        /// <param name="winy">Window y offset</param>
+        /// <param name="drawScaler">Draw scaler value</param>
+        public virtual void drawScaled(IntPtr renderer, double angle, int winx = 0, int winy = 0, float drawScaler = 1.0f)
+        {
+            destRect.x = (int)hitBox.X - winx;
+            destRect.y = (int)hitBox.Y - winy;
+            destRect.w = (int)(srcRect.w * drawScaler);
+            destRect.h = (int)(srcRect.h * drawScaler);
+            srcRect.x = frame * srcRect.w;
+            srcRect.y = ((int)direct) * srcRect.h;
+            SimpleDraw.draw(renderer, source, srcRect, destRect, angle, new Point2D(destRect.w / 2, destRect.h / 2), SDL.SDL_RendererFlip.SDL_FLIP_NONE);
+            if (!still)
+            {
+                if (frameDelay.tick())
+                {
+                    if (frame < numFrames - 1)
+                    {
+                        frame++;
+                    }
+                    else
+                    {
+                        frame = 0;
+                    }
+                }
+            }
+            destRect.w = srcRect.w;
+            destRect.h = srcRect.h;
         }
         /// <summary>
         /// Draws XenoSprite at a specified angle

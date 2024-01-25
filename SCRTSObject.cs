@@ -31,6 +31,7 @@ namespace XenoLib
     {
         MELEE = 0,
         BEAM,
+        LASER,
         MISSILE,
         BOMB,
         BUFF,
@@ -121,6 +122,7 @@ namespace XenoLib
         //protected
         protected float scalerValue;
         protected string sourceName;
+        protected float drawScaler;
 
         //public
         /// <summary>
@@ -135,12 +137,13 @@ namespace XenoLib
         /// <param name="sourceName">Source name value</param>
         /// <param name="hp">Hitpoint value</param>
         public SCRTSObject(string name, float x, float y, int width,
-            int height, int numFrames, string sourceName, int hp = 100) :
+            int height, int numFrames, string sourceName, int hp = 100, float drawScaler = 1.0f) :
             base(name, x, y, width, height, numFrames, hp)
         {
             scalerValue = 1;
             this.sourceName = sourceName;
             source = TextureBank.getTexture(sourceName);
+            this.drawScaler = drawScaler;
         }
         /// <summary>
         /// RTSObject from file constructor 
@@ -164,6 +167,7 @@ namespace XenoLib
                 sourceName = name;
             }
             source = TextureBank.getTexture(sourceName);
+            drawScaler = (float)Convert.ToDecimal(sr.ReadLine());
         }
         /// <summary>
         /// RTSObject copy constructor
@@ -175,6 +179,7 @@ namespace XenoLib
             destRect.w = (int)(srcRect.w * scalerValue);
             destRect.h = (int)(srcRect.h * scalerValue);
             sourceName = obj.SourceName;
+            drawScaler = obj.DrawScaler;
         }
         /// <summary>
         /// Save data override
@@ -186,6 +191,7 @@ namespace XenoLib
             sw.WriteLine("======SCRTSObject Data======");
             sw.WriteLine(scalerValue);
             sw.WriteLine(sourceName);
+            sw.WriteLine(drawScaler);
         }
         /// <summary>
         /// Updates SCRTSObject internal state
@@ -193,6 +199,27 @@ namespace XenoLib
         public virtual void update()
         {
 
+        }
+        /// <summary>
+        /// Draws object to store scale
+        /// </summary>
+        /// <param name="renderer">Renderer reference</param>
+        /// <param name="winx">Window X offset</param>
+        /// <param name="winy">Window Y offset</param>
+        public virtual void scaledDraw(IntPtr renderer, int winx = 0, int winy = 0)
+        {
+            drawScaled(renderer, winx, winy, drawScaler);
+        }
+        /// <summary>
+        /// Draws object to store scale at angle of rotation
+        /// </summary>
+        /// <param name="renderer">Renderer reference</param>
+        /// <param name="angle">Angle of sprite rotation</param>
+        /// <param name="winx">Window X offset</param>
+        /// <param name="winy">Window Y offset</param>
+        public virtual void scaledDraw(IntPtr renderer, float angle, int winx = 0, int winy = 0)
+        {
+            drawScaled(renderer, angle, winx, winy, drawScaler);
         }
         /// <summary>
         /// Scales object by a value
@@ -265,6 +292,14 @@ namespace XenoLib
         {
             get { return sourceName; }
             set { sourceName = value; }
+        }
+        /// <summary>
+        /// DrawScaler property
+        /// </summary>
+        public float DrawScaler
+        {
+            get { return drawScaler; }
+            set { drawScaler = value; }
         }
     }
     public class SCRTSTurret : SCRTSObject
@@ -1078,6 +1113,7 @@ namespace XenoLib
                 switch(act.Act)
                 {
                     case ACTIONS.BEAM:
+                    case ACTIONS.LASER:
                     case ACTIONS.BOMB:
                     case ACTIONS.MISSILE:
                     case ACTIONS.MELEE:
@@ -2550,6 +2586,7 @@ namespace XenoLib
         protected int power;
         protected string buff;
         protected string actionName;
+        //protected bool isAir;
 
         //public
         /// <summary>
@@ -2575,7 +2612,7 @@ namespace XenoLib
             ACTIONS act = ACTIONS.MISSILE, STATUSES status = STATUSES.DAMAGE, 
             int lifeSpan = 100, int owner = -1, string secondaryAction = "",
             XENOCOLOURS colour = XENOCOLOURS.WHITE, int power = 10, 
-            string buff = "") :
+            string buff = "") ://, bool isAir = false) :
             base(name, x, y, width, height, numFrames, sourceName, 10)
         {
             this.act = act;
@@ -2588,6 +2625,7 @@ namespace XenoLib
             this.colour = colour;
             this.power = power;
             this.buff = buff;
+            //this.isAir = isAir;
             if (name == "")
             {
                 actionName = "default action";
@@ -2615,6 +2653,17 @@ namespace XenoLib
             colour = (XENOCOLOURS)Convert.ToInt32(sr.ReadLine());
             power = Convert.ToInt32(sr.ReadLine());
             buff = sr.ReadLine();
+            /*
+            if(buff == "TRUE")
+            {
+                isAir = true;
+            }
+            else
+            {
+                isAir = false;
+            }
+            */
+            buff = sr.ReadLine();
             actionName = "default action";
         }
         /// <summary>
@@ -2633,6 +2682,7 @@ namespace XenoLib
             colour = obj.Colour;
             power = obj.Power;
             buff = obj.Buff;
+            //isAir = obj.IsAir;
             actionName = obj.ActionName;
         }
         /// <summary>
@@ -2654,6 +2704,16 @@ namespace XenoLib
             sw.WriteLine((int)colour);
             sw.WriteLine(power);
             sw.WriteLine(buff);
+            /*
+            if(isAir == true)
+            {
+                sw.WriteLine("TRUE");
+            }
+            else
+            {
+                sw.WriteLine("False");
+            }
+            */
             sw.WriteLine(actionName);
         }
         /// <summary>
@@ -2784,6 +2844,16 @@ namespace XenoLib
             get { return actionName; }
             set { actionName = value; }
         }
+        /*
+        /// <summary>
+        /// IsAir property
+        /// </summary>
+        public bool IsAir
+        {
+            get { return isAir; }
+            set { isAir = value; }
+        }
+        */
     }
     public class SCRTSStatus : SCRTSObject
     {
