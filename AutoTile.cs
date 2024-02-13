@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 13/02/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,22 @@ using SDL2;
 namespace XenoLib
 {
     /// <summary>
+    /// TILESETS enumeration
+    /// </summary>
+    public enum TILESETS
+    {
+        TILESET1 = 0,
+        TILESET2,
+        TILESET3,
+        TILESET4,
+        TILESET5,
+        TILESET6,
+        TILESET7,
+        TILESET8,
+        TILESET9,
+        TILESET10
+    };
+    /// <summary>
     /// AutoTile class
     /// </summary>
     public class AutoTile
@@ -23,6 +39,7 @@ namespace XenoLib
         protected Rectangle srcBox;
         protected Rectangle destBox;
         protected int frame;
+        protected TILESETS tileSet;
 
         //public
         /// <summary>
@@ -34,20 +51,24 @@ namespace XenoLib
         /// <param name="w">Width</param>
         /// <param name="h">Height</param>
         /// <param name="frame">Tile frame</param>
-        public AutoTile(Texture2D src, int x, int y, int w, int h, int frame = 0)
+        /// <param name="tileset">TILESETS value</param>
+        public AutoTile(Texture2D src, int x, int y, int w, int h, int frame = 0, 
+            TILESETS tileset = TILESETS.TILESET1)
         {
             this.src = src;
             pos = new Point2D(x, y);
             srcBox = new Rectangle(0, 0, w, h);
             destBox = new Rectangle(x, y, w, h);
             this.frame = frame;
+            tileSet = tileset;
         }
         /// <summary>
         /// AutoTile from file constructor
         /// </summary>
         /// <param name="src">Texture2D reference</param>
         /// <param name="sr">StreamReader reference</param>
-        public AutoTile(Texture2D src, StreamReader sr)
+        /// <param name="host">AutoTileSys reference</param>
+        public AutoTile(Texture2D src, StreamReader sr, AutoTileSys host = null)
         {
             this.src = src;
             string b1 = sr.ReadLine();
@@ -56,18 +77,32 @@ namespace XenoLib
             destBox = new Rectangle(pos.X, pos.Y, Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine()));
             srcBox = new Rectangle(0, 0, destBox.Width, destBox.Height);
             frame = Convert.ToInt32(sr.ReadLine());
+            if (host != null)
+            {
+                tileSet = TILESETS.TILESET1;
+            }
+            else
+            {
+                tileSet = (TILESETS)Convert.ToInt32(sr.ReadLine());
+                src = host.getSrc(tileSet);
+            }
         }
         /// <summary>
         /// Save data
         /// </summary>
         /// <param name="sw">StreamWriter reference</param>
-        public void saveData(StreamWriter sw)
+        /// <param name="host">AutoTileSys reference</param>
+        public void saveData(StreamWriter sw, AutoTileSys host = null)
         {
             sw.WriteLine((int)pos.X);
             sw.WriteLine((int)pos.Y);
             sw.WriteLine(destBox.Width);
             sw.WriteLine(destBox.Height);
             sw.WriteLine(frame);
+            if(host != null)
+            {
+                sw.WriteLine((int)tileSet);
+            }
         }
         /// <summary>
         /// Draw AutoTile
@@ -108,6 +143,14 @@ namespace XenoLib
             get { return pos.Y; }
             set { pos.Y = value; }
         }
+        /// <summary>
+        /// TileSet property
+        /// </summary>
+        public TILESETS TileSet
+        {
+            get { return tileSet; }
+            set { tileSet = value; }
+        }
     }
     /// <summary>
     /// AutoTileSys class
@@ -116,6 +159,16 @@ namespace XenoLib
     {
         //protected
         protected Texture2D src;
+        protected Texture2D src2;
+        protected Texture2D src3;
+        protected Texture2D src4;
+        protected Texture2D src5;
+        protected Texture2D src6;
+        protected Texture2D src7;
+        protected Texture2D src8;
+        protected Texture2D src9;
+        protected Texture2D src10;
+        protected TILESETS tileSet;
         protected int width;
         protected int height;
         protected int tileWidth;
@@ -131,9 +184,23 @@ namespace XenoLib
         /// <param name="h">Height in tiles</param>
         /// <param name="tw">Tile width</param>
         /// <param name="th">Tile height</param>
-        public AutoTileSys(Texture2D src, int w, int h, int tw, int th)
+        public AutoTileSys(Texture2D src, int w, int h, int tw, int th, 
+            Texture2D src2 = default(Texture2D), Texture2D src3 = default(Texture2D), 
+            Texture2D src4 = default(Texture2D), Texture2D src5 = default(Texture2D),
+            Texture2D src6 = default(Texture2D), Texture2D src7 = default(Texture2D),
+            Texture2D src8 = default(Texture2D), Texture2D src9 = default(Texture2D),
+            Texture2D src10 = default(Texture2D))
         {
             this.src = src;
+            this.src2 = src2;
+            this.src3 = src3;
+            this.src4 = src4;
+            this.src5 = src5;
+            this.src6 = src6;
+            this.src7 = src7;
+            this.src8 = src8;
+            this.src9 = src9;
+            this.src10 = src10;
             width = w;
             height = h;
             tileWidth = th;
@@ -145,9 +212,22 @@ namespace XenoLib
         /// </summary>
         /// <param name="src">Texture2D reference</param>
         /// <param name="sr">StreamReader reference</param>
-        public AutoTileSys(Texture2D src, StreamReader sr)
+        public AutoTileSys(Texture2D src, StreamReader sr, Texture2D src2 = default(Texture2D), Texture2D src3 = default(Texture2D),
+            Texture2D src4 = default(Texture2D), Texture2D src5 = default(Texture2D),
+            Texture2D src6 = default(Texture2D), Texture2D src7 = default(Texture2D),
+            Texture2D src8 = default(Texture2D), Texture2D src9 = default(Texture2D),
+            Texture2D src10 = default(Texture2D))
         {
             this.src = src;
+            this.src2 = src2;
+            this.src3 = src3;
+            this.src4 = src4;
+            this.src5 = src5;
+            this.src6 = src6;
+            this.src7 = src7;
+            this.src8 = src8;
+            this.src9 = src9;
+            this.src10 = src10;
             sr.ReadLine();//discard testing data
             width = Convert.ToInt32(sr.ReadLine());
             height = Convert.ToInt32(sr.ReadLine());
@@ -230,10 +310,45 @@ namespace XenoLib
         /// </summary>
         /// <param name="x">X position</param>
         /// <param name="y">Y position</param>
-        public void addTile(int x, int y)
+        /// <param name="tileset">TILESETS value</param>
+        public void addTile(int x, int y, TILESETS tileset = TILESETS.TILESET1)
         {
             if(inDomain(x, y))
             {
+                Texture2D tmp = src;
+                switch(tileset)
+                {
+                    case TILESETS.TILESET1:
+                        tmp = src;
+                        break;
+                    case TILESETS.TILESET2:
+                        tmp = src2;
+                        break;
+                    case TILESETS.TILESET3:
+                        tmp = src3;
+                        break;
+                    case TILESETS.TILESET4:
+                        tmp = src4;
+                        break;
+                    case TILESETS.TILESET5:
+                        tmp = src5;
+                        break;
+                    case TILESETS.TILESET6:
+                        tmp = src6;
+                        break;
+                    case TILESETS.TILESET7:
+                        tmp = src7;
+                        break;
+                    case TILESETS.TILESET8:
+                        tmp = src8;
+                        break;
+                    case TILESETS.TILESET9:
+                        tmp = src9;
+                        break;
+                    case TILESETS.TILESET10:
+                        tmp = src10;
+                        break;
+                }
                 grid.Grid[x, y] = new AutoTile(src, x * tileWidth, y * tileHeight, tileWidth, tileHeight);
                 setTileFrame(x, y);
                 //set all tile frames around this tile
@@ -249,10 +364,46 @@ namespace XenoLib
         }
         /// <summary>
         /// Fill AutoTileSys with tiles
+        /// <param name="frame">Frame value</param>
+        /// <param name="tileset">TILESETS value</param>
         /// </summary>
-        public void fill(int frame = 13)
+        public void fill(int frame = 13, TILESETS tileset = TILESETS.TILESET1)
         {
-            for(int x = 0; x < width; x++)
+            Texture2D tmp = src;
+            switch (tileset)
+            {
+                case TILESETS.TILESET1:
+                    tmp = src;
+                    break;
+                case TILESETS.TILESET2:
+                    tmp = src2;
+                    break;
+                case TILESETS.TILESET3:
+                    tmp = src3;
+                    break;
+                case TILESETS.TILESET4:
+                    tmp = src4;
+                    break;
+                case TILESETS.TILESET5:
+                    tmp = src5;
+                    break;
+                case TILESETS.TILESET6:
+                    tmp = src6;
+                    break;
+                case TILESETS.TILESET7:
+                    tmp = src7;
+                    break;
+                case TILESETS.TILESET8:
+                    tmp = src8;
+                    break;
+                case TILESETS.TILESET9:
+                    tmp = src9;
+                    break;
+                case TILESETS.TILESET10:
+                    tmp = src10;
+                    break;
+            }
+            for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
@@ -635,6 +786,38 @@ namespace XenoLib
                 return true;
             }
             return false;
+        }
+        /// <summary>
+        /// Returns the source reference for the corrisponding TILESETS value
+        /// </summary>
+        /// <param name="tileset">TILESETS value</param>
+        /// <returns>Texture2D reference</returns>
+        public Texture2D getSrc(TILESETS tileset)
+        {
+            switch(tileset)
+            {
+                case TILESETS.TILESET1:
+                    return src;
+                case TILESETS.TILESET2:
+                    return src2;
+                case TILESETS.TILESET3:
+                    return src3;
+                case TILESETS.TILESET4:
+                    return src4;
+                case TILESETS.TILESET5:
+                    return src5;
+                case TILESETS.TILESET6:
+                    return src6;
+                case TILESETS.TILESET7:
+                    return src7;
+                case TILESETS.TILESET8:
+                    return src8;
+                case TILESETS.TILESET9:
+                    return src9;
+                case TILESETS.TILESET10:
+                    return src10;
+            }
+            return src;
         }
     }
 }
