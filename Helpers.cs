@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 05/11/23
+//Last Updated 22/02/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -63,7 +63,7 @@ namespace XenoLib
         /// <param name="center">Center of circle</param>
         /// <param name="radius">Radius of circle</param>
         /// <returns>List of Point2D objects</returns>
-        public static List<Point2D> getCircleArea<T>(DataGrid<T> grid, Point2D center, float radius)
+        public static List<Point2D> getCircleArea<K>(DataGrid<T> grid, Point2D center, float radius)
         {
             List<Point2D> points = new List<Point2D>();
             int width = (int)(radius * 2) + 1;
@@ -172,7 +172,7 @@ namespace XenoLib
         /// <typeparam name="K">Object type stored in DataGrid</typeparam>
         /// <param name="grid">DataGrid reference</param>
         /// <returns>List of Point2D objects</returns>
-        public static List<Point2D> scanDataGrid<T, K>(DataGrid<K> grid)
+        public static List<Point2D> scanDataGrid<J, K>(DataGrid<K> grid)
         {
             List<Point2D> temp = new List<Point2D>();
             for (int x = 0; x < grid.Width; x++)
@@ -932,7 +932,7 @@ namespace XenoLib
         /// <returns>Float</returns>
         public static float movementY(double angle, float speed)
         {
-            return (float)Math.Cos((double)degreesToRadians(angle)) * speed;
+            return (float)Math.Sin((double)degreesToRadians(angle)) * speed;
         }
         /// <summary>
         /// Takes a file name and file path and outputs a compressed file of specified extension
@@ -1015,6 +1015,33 @@ namespace XenoLib
                 tmp[i] = arr[i];
             }
             return tmp;
+        }
+        /// <summary>
+        /// Returns the current Sol as a string
+        /// </summary>
+        /// <returns>String</returns>
+        public static string getSol()
+        {
+            string sol = "";
+            int year = System.DateTime.Today.Year - 1982;
+            int day = System.DateTime.Today.DayOfYear - 15;
+            int leapYears = 0;
+            for(int i = 1982; i < System.DateTime.Today.Year; i++)
+            {
+                if(System.DateTime.IsLeapYear(i) == true)
+                {
+                    leapYears++;
+                }
+            }
+            if(System.DateTime.IsLeapYear(year) == true)
+            {
+                if(System.DateTime.Today.Month > 2)
+                {
+                    day += 1;
+                }
+            }
+            sol = "Sol: " + ((year * 365) - leapYears) + day;
+            return sol;
         }
     }
 }
