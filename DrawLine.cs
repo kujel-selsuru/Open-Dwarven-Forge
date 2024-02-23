@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 23/02/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -34,8 +34,16 @@ namespace XenoLib
             SDL.SDL_RenderDrawLine(renderer, (int)a.X - winx, (int)a.Y - winy, (int)b.X - winx, (int)b.Y - winy);
             SDL.SDL_SetRenderDrawColor(renderer, temp.r, temp.g, temp.b, temp.a);
         }
-
-        public static void drawCircle(IntPtr renderer, Point2D center, float radius, SDL.SDL_Color colour, int winx = 0, int winy =0)
+        /// <summary>
+        /// Draws a circle
+        /// </summary>
+        /// <param name="renderer">Renderer reference</param>
+        /// <param name="center">Center point of circle</param>
+        /// <param name="radius">Radius of cirlce in pixels</param>
+        /// <param name="colour">Color of circle</param>
+        /// <param name="winx">Window X offset value</param>
+        /// <param name="winy">Window Y offset value</param>
+        public static void drawCircle(IntPtr renderer, Point2D center, float radius, SDL.SDL_Color colour, int winx = 0, int winy = 0)
         {
             circle = new List<Point2D>();
             for (int i = 0; i < 18; i++)
