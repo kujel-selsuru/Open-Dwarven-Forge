@@ -46,6 +46,7 @@ namespace XenoLib
         protected Counter leapCounter;
         protected float acceleration;
         protected Point2D center;
+        protected List<string> scripts;
 
         //public
         /// <summary>
@@ -91,6 +92,7 @@ namespace XenoLib
             leapCounter = new Counter(delay * 2);
             acceleration = 0;
             center = new Point2D(0, 0);
+            scripts = new List<string>();
         }
         /// <summary>
         /// XenoSprite constructor
@@ -134,6 +136,7 @@ namespace XenoLib
             leapCounter = new Counter(delay * 2);
             acceleration = 0;
             center = new Point2D(0, 0);
+            scripts = new List<string>();
         }
         /// <summary>
         /// XenoSprite SpriteProfile constructor
@@ -174,6 +177,7 @@ namespace XenoLib
             leapCounter = new Counter(delay * 2);
             acceleration = 0;
             center = new Point2D(0, 0);
+            scripts = new List<string>();
         }
         /// <summary>
         /// XenoSprite from file constructor
@@ -221,6 +225,12 @@ namespace XenoLib
             acceleration = 0;
             center = new Point2D(0, 0);
             frameDelay = new Counter(Convert.ToInt32(sr.ReadLine()));
+            scripts = new List<string>();
+            int num = Convert.ToInt32(sr.ReadLine());
+            for (int i = 0; i < num - 1; i++)
+            {
+                scripts.Add(sr.ReadLine());
+            }
         }
         /// <summary>
         /// XenoSprite from file constructor (internally sets source texture)
@@ -272,6 +282,12 @@ namespace XenoLib
             acceleration = 0;
             center = new Point2D(0, 0);
             frameDelay = new Counter(Convert.ToInt32(sr.ReadLine()));
+            scripts = new List<string>();
+            int num = Convert.ToInt32(sr.ReadLine());
+            for(int i = 0; i < num - 1; i++)
+            {
+                scripts.Add(sr.ReadLine());
+            }
         }
         /// <summary>
         /// XenoSprite copy constructor
@@ -307,6 +323,11 @@ namespace XenoLib
             leapCounter = new Counter(obj.FrameDelay.Max * 2);
             acceleration = 0;
             center = new Point2D(0 , 0);
+            scripts = new List<string>();
+            for(int i = 0; i < obj.Scripts.Count - 1; i++)
+            {
+                scripts.Add(obj.Scripts[i]);
+            }
         }
         /// <summary>
         /// Save data
@@ -327,6 +348,11 @@ namespace XenoLib
             sw.WriteLine(name);
             sw.WriteLine(speed);
             sw.WriteLine(frameDelay.Max);
+            sw.WriteLine(scripts.Count);
+            for(int i = 0; i < scripts.Count - 1; i++)
+            {
+                sw.WriteLine(scripts[i]);
+            }
         }
         /// <summary>
         /// Loads data without creating a new object
@@ -367,6 +393,12 @@ namespace XenoLib
             leapCounter = new Counter(frameDelay.Max * 2);
             acceleration = 0;
             frameDelay = new Counter(Convert.ToInt32(sr.ReadLine()));
+            scripts = new List<string>();
+            int num = Convert.ToInt32(sr.ReadLine());
+            for (int i = 0; i < num - 1; i++)
+            {
+                scripts.Add(sr.ReadLine());
+            }
         }
         /// <summary>
         /// Draws XenoSprite
@@ -1472,6 +1504,13 @@ namespace XenoLib
                     frame = value;
                 }
             }
+        }
+        /// <summary>
+        /// Scripts property
+        /// </summary>
+        public List<string> Scripts
+        {
+            get { return scripts; }
         }
     }
     /// <summary>
