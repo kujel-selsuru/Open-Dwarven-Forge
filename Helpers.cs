@@ -671,6 +671,52 @@ namespace XenoLib
             return new Point2D(0, 0);
         }
         /// <summary>
+        /// Returns a file source name minus the path and extension
+        /// </summary>
+        /// <param name="srcPath">Full file path</param>
+        /// <returns>String value</returns>
+        public static string sourceNameWithoutPath(string srcPath)
+        {
+            try
+            {
+                string[] temp;
+                char[] dot = { '.' };
+                temp = StringParser.parse(srcPath, dot);
+                char[] slash = { '\\' };
+                string[] temp2 = StringParser.parse(temp[0], slash);
+                return temp2[temp2.Length - 1];
+            }
+            catch (Exception)
+            {
+
+            }
+            return "";
+        }
+        /// <summary>
+        /// Extracts graphics dimesions, frames number and type of graphic from properly 
+        /// formatted file names graphics file names ending in _width_height_frames_type.
+        /// Types are as fallows: s = sprite, b = bullet, a = animation
+        /// </summary>
+        /// <param name="name">string value</param>
+        /// <returns>TextureDetails</returns>
+        public static TextureDetails extractTextureDetails(string name)
+        {
+            try
+            {
+                string[] temp;
+                char[] dot = { '.' };
+                temp = StringParser.parse(name, dot);
+                char[] under = { '_' };
+                temp = StringParser.parse(temp[0], under);
+                return new TextureDetails(name, Convert.ToInt32(temp[1]), Convert.ToInt32(temp[2]), Convert.ToInt32(temp[3]), (TEXTURETYPES)Convert.ToInt32(temp[4]));
+            }
+            catch (Exception)
+            {
+
+            }
+            return new TextureDetails("", 0, 0, 0, TEXTURETYPES.SPRITE);
+        }
+        /// <summary>
         /// Extracts a source image's TextureBank key from name
         /// </summary>
         /// <param name="name">Source graphic path</param>
@@ -877,7 +923,7 @@ namespace XenoLib
                 char[] dot = { '.' };
                 string[] temp;
                 string srcKey = "";
-                for(int i = 0; i < fileNames.Length; i++)
+                for(int i = 0; i < fileNames.Length - 1; i++)
                 {
                     temp = StringParser.parse(fileNames[i], dot);
                     if(temp[temp.Length - 1] == "png")
@@ -897,6 +943,45 @@ namespace XenoLib
                 }
             }
             return srcKeys;
+        }
+        /// <summary>
+        /// Automatically loads all png files ending in _widthValue_heightValue_framesValue_TEXTURETYPESvalue 
+        /// with magenta as the transparent color.
+        /// Returns a list of TextureDetails for building sprites, bullets and animations.
+        /// </summary>
+        /// <param name="srcPath">Source graphics folder path</param>
+        /// <param name="renderer">Renderer reference</param>
+        /// <returns>List of strings</returns>
+        public static List<TextureDetails> autoLoadGraphics2(string srcPath, IntPtr renderer)
+        {
+            List<TextureDetails> detailsList = new List<TextureDetails>();
+            if (System.IO.Directory.Exists(srcPath) == true)
+            {
+                TextureDetails details = new TextureDetails("", 0, 0, 0, TEXTURETYPES.SPRITE);
+                string[] fileNames = System.IO.Directory.GetFiles(srcPath);
+                char[] dot = { '.' };
+                string[] temp;
+                string srcName = "";
+                for (int i = 0; i < fileNames.Length - 1; i++)
+                {
+                    temp = StringParser.parse(fileNames[i], dot);
+                    if (temp[temp.Length - 1] == "png")
+                    {
+                        try
+                        {
+                            srcName = sourceNameWithoutPath(fileNames[i]);
+                            details = extractTextureDetails(srcName);
+                            TextureBank.addTexture(details.srcKey, TextureLoader.autoLoad(fileNames[i], renderer));
+                            detailsList.Add(details);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+                }
+            }
+            return detailsList;
         }
         /// <summary>
         /// Takes an angle -in degrees- and a speed as a float and returns a vector as a 

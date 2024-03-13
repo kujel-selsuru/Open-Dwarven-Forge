@@ -30,6 +30,36 @@ namespace XenoLib
         }
     }
     /// <summary>
+    /// Types of textures
+    /// </summary>
+    public enum TEXTURETYPES {SPRITE = 0, BALLISTIC, ANIMATION};
+    /// <summary>
+    /// Stores texture details for loading
+    /// </summary>
+    public class TextureDetails
+    {
+        public string srcKey;
+        public int width;
+        public int height;
+        public int frames;
+        public TEXTURETYPES tt;
+        /// <summary>
+        /// TextureDetails constructor
+        /// </summary>
+        /// <param name="w">Width value</param>
+        /// <param name="h">Height value</param>
+        /// <param name="f">Frames value</param>
+        /// <param name="tt">TEXTURETYPES value</param>
+        public TextureDetails(string srcKey, int w, int h, int f, TEXTURETYPES tt)
+        {
+            this.srcKey = srcKey;
+            width = w;
+            height = h;
+            frames = f;
+            this.tt = tt;
+        }
+    }
+    /// <summary>
     /// Loads image files and and returns a SDL_Texture
     /// </summary>
     public static class TextureLoader
