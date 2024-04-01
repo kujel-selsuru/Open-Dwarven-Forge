@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 01/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -26,11 +26,11 @@ namespace XenoLib
         protected GenericBank<SCRTSParticle> particleDB;
         protected GenericBank<SCRTSTurret> turretDB;
         protected GenericBank<SCRTSBuff> buffDB;
-        protected List<XenoSprite> units;
-        protected List<XenoSprite> buildings;
-        protected List<XenoSprite> actions;
-        protected List<XenoSprite> particles;
-        protected List<XenoSprite> airParticles;
+        protected List<SCRTSUnit> units;
+        protected List<SCRTSBuilding> buildings;
+        protected List<SCRTSAction> actions;
+        protected List<SCRTSParticle> particles;
+        protected List<SCRTSParticle> airParticles;
         protected int iff;
         protected string name;
         protected bool selecting;
@@ -75,11 +75,11 @@ namespace XenoLib
             turretDB = new GenericBank<SCRTSTurret>();
             particleDB = new GenericBank<SCRTSParticle>();
             buffDB = new GenericBank<SCRTSBuff>();
-            units = new List<XenoSprite>();
-            buildings = new List<XenoSprite>();
-            actions = new List<XenoSprite>();
-            particles = new List<XenoSprite>();
-            airParticles = new List<XenoSprite>();
+            units = new List<SCRTSUnit>();
+            buildings = new List<SCRTSBuilding>();
+            actions = new List<SCRTSAction>();
+            particles = new List<SCRTSParticle>();
+            airParticles = new List<SCRTSParticle>();
             iff = 0;
             this.name = name;
             selectedObjects = new List<SCRTSUnit>();
@@ -220,7 +220,7 @@ namespace XenoLib
             buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
-            units = new List<XenoSprite>();
+            units = new List<SCRTSUnit>();
             for (int i = 0; i < num; i++)
             {
                 units.Add(new SCRTSUnit(sr, this));
@@ -228,7 +228,7 @@ namespace XenoLib
             buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
-            buildings = new List<XenoSprite>();
+            buildings = new List<SCRTSBuilding>();
             for (int i = 0; i < num; i++)
             {
                 buildings.Add(new SCRTSBuilding(sr, this));
@@ -236,7 +236,7 @@ namespace XenoLib
             buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
-            actions = new List<XenoSprite>();
+            actions = new List<SCRTSAction>();
             for (int i = 0; i < num; i++)
             {
                 actions.Add(new SCRTSAction(sr));
@@ -244,7 +244,7 @@ namespace XenoLib
             buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
-            particles = new List<XenoSprite>();
+            particles = new List<SCRTSParticle>();
             for (int i = 0; i < num; i++)
             {
                 particles.Add(new SCRTSParticle(sr));
@@ -252,7 +252,7 @@ namespace XenoLib
             buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
-            airParticles = new List<XenoSprite>();
+            airParticles = new List<SCRTSParticle>();
             for (int i = 0; i < num; i++)
             {
                 airParticles.Add(new SCRTSParticle(sr));
@@ -2358,6 +2358,21 @@ namespace XenoLib
             SCRTSUnit cre5 = null;
             SCRTSUnit temp = null;
             Random rand = new Random((int)System.DateTime.Today.Ticks);
+            List<Point2D> points = new List<Point2D>();
+            RTSCell currentCell = (RTSCell)world.getCurrentCell(x, y);
+            points = currentCell.getCircleArea(new Point2D(x / scalerx, y / scalery), 6);
+            for(int i = 0; i < points.Count; i++)
+            {
+                if(currentCell.Occupied.Grid[points[i].IX, points[i].IY] == true)
+                {
+                    points.RemoveAt(i);
+                }
+                else
+                {
+                    points[i].IX *= world.TileWidth;
+                    points[i].IY *= world.TileHeight;
+                }
+            }
             if(rand.Next(0, 1000) < 500)
             {
                 cre1 = getCheapestGroundUnit();
@@ -2382,54 +2397,54 @@ namespace XenoLib
                     cre4 = getRandomGroundUnit();
                     cre5 = getRandomGroundUnit();
                 }
-                List<Point2D> positions = world.getArea((int)(x / scalerx), (int)(y / scalery), 5);
+                //List<Point2D> positions = world.getArea((int)(x / scalerx), (int)(y / scalery), 5);
                 temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
-                units.Add(temp);
-                temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
+                units.Add(temp);
+                temp = new SCRTSUnit(cre1);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre3);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre3);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre4);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre4);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre5);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre5);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
             }
             else
@@ -2456,56 +2471,2331 @@ namespace XenoLib
                     cre4 = getRandomAirUnit();
                     cre5 = getRandomAirUnit();
                 }
-                List<Point2D> positions = world.getArea((int)(x / scalerx), (int)(y / scalery), 5);
+                //List<Point2D> positions = world.getArea((int)(x / scalerx), (int)(y / scalery), 5);
                 temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
-                units.Add(temp);
-                temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre1);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
+                units.Add(temp);
+                temp = new SCRTSUnit(cre1);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre2);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre3);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre3);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre4);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre4);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre5);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
                 temp = new SCRTSUnit(cre5);
-                temp.setPos(positions[0].X, positions[0].Y);
-                positions.RemoveAt(0);
+                temp.setPos(points[0].X, points[0].Y);
+                points.RemoveAt(0);
                 units.Add(temp);
             }
+        }
+        /// <summary>
+        /// Spawns a WEF base at specified postion
+        /// </summary>
+        /// <param name="world">OpenWorld reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">Scaler X value</param>
+        /// <param name="scaleY">Scaler Y value</param>
+        /// <param name="tier">Base power tier</param>
+        /// <param name="size">Base size</param>
+        /// <param name="projPath">Project path</param>
+        public void spawnBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, string size, RTSCell currentCell)
+        {
+            switch(size)
+            {
+                case "small":
+                    addSmallBase(world, x, y, scaleX, scaleY, tier, currentCell);
+                    break;
+                case "medium":
+                    addMediumBase(world, x, y, scaleX, scaleY, tier, currentCell);
+                    break;
+                case "large":
+                    addLargeBase(world, x, y, scaleX, scaleY, tier, currentCell);
+                    break;
+            }
+        }
+        /// <summary>
+        /// Spawns a player for Soul Core Saga Gods Rising
+        /// </summary>
+        /// <param name="world">OpenWorld reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">Scaler X value</param>
+        /// <param name="scaleY">Scaler Y value</param>
+        /// <param name="workerName">Worker unit name</param>
+        /// <param name="commandCenterName">Command center building name</param>
+        /// <param name="citadelName">Citadel doodad name</param>
+        public void spawnPlayer(OpenWorld world, int x, int y, float scaleX = 32f, float scaleY = 32f, 
+            string workerName = "worker", string commandCenterName = "mobile command center", string citadelName = "citadel entrence")
+        {
+            //spawn citadel
+            RTSCell cell = (RTSCell)world.getCurrentCell(x * scaleX, y * scaleY);
+            cell.clearRadiusInDoodadLayer2(x, y, 7);
+            cell.DoodadLayer2.Grid[x, y] = new SCRTSDoodad(citadelName, x * scaleX, y * scaleY,
+                citadelName, 32, 64, 2);
+            //spawn command center
+            SCRTSBuilding tmpB = buildingDB.getData(commandCenterName);
+            SCRTSBuilding bld = new SCRTSBuilding(tmpB);
+            bld.setPos(x * scaleX, y * scaleY);
+            buildings.Add(bld);
+            //spawn workers
+            SCRTSUnit tmpU = unitDB.getData(workerName);
+            SCRTSUnit unt = new SCRTSUnit(tmpU);
+            unt.setPos(x * scaleX, (y + 2) * scaleY);
+            units.Add(unt);
+            unt = new SCRTSUnit(tmpU);
+            unt.setPos((x - 1) * scaleX, (y + 2) * scaleY);
+            units.Add(unt);
+            unt = new SCRTSUnit(tmpU);
+            unt.setPos((x + 1) * scaleX, (y + 2) * scaleY);
+            units.Add(unt);
+        }
+        /// <summary>
+        /// Destroys a base and all units within range of center point
+        /// </summary>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">Scaler X value</param>
+        /// <param name="scaleY">Scaler Y value</param>
+        /// <param name="range">Range of search radius</param>
+        public void destroyBase(int x, int y, float scaleX, float scaleY, int range = 13)
+        {
+            int xx = (int)(x * scaleX);
+            int yy = (int)(y * scaleY);
+            float rng = range * scaleX;
+            float dist = 0;
+            Point2D center = new Point2D(xx, yy);
+            for(int b = 0; b < buildings.Count - 1; b++)
+            {
+                dist = Point2D.calculateDistance(buildings[b].Center, center);
+                if(dist <= rng)
+                {
+                    buildings.RemoveAt(b);
+                }
+            }
+            for(int a = 0; a < airUnits.Count - 1; a++)
+            {
+                dist = Point2D.calculateDistance(airUnits[a].Center, center);
+                if (dist <= rng)
+                {
+                    airUnits.RemoveAt(a);
+                }
+            }
+            for (int g = 0; g < groundUnits.Count - 1; g++)
+            {
+                dist = Point2D.calculateDistance(groundUnits[g].Center, center);
+                if (dist <= rng)
+                {
+                    groundUnits.RemoveAt(g);
+                }
+            }
+        }
+        /// <summary>
+        /// Commands units and buildings
+        /// </summary>
+        /// <param name="world">OpenWorld reference</param>
+        /// <param name="x">Position in pixels</param>
+        /// <param name="y">Position in pixels</param>
+        /// <param name="index">Unit or building index</param>
+        /// <param name="cmd">Command as string value</param>
+        /// <param name="objType">OBJECTTYPE value</param>
+        /// <param name="target">RTSObject reference</param>
+        /// <param name="ut">UNITTYPE value</param>
+        /// <param name="bt">BUILDINGTYPE value</param>
+        public void commandObject(OpenWorld world, int x, int y, int index, string cmd, OBJECTTYPE objType, SCRTSUnit target = null,
+            UNITTYPES ut = UNITTYPES.NONE, BUILDINGTYPES bt = BUILDINGTYPES.NONE)
+        {
+            switch(objType)
+            {
+                case OBJECTTYPE.ot_building:
+                    switch (bt)
+                    {
+                        case BUILDINGTYPES.BUNKER:
+                            switch (cmd)
+                            {
+                                case "UNLOAD":
+                                    //buildings[index]
+                                    break;
+                            }
+                            break;
+                        case BUILDINGTYPES.COMMANDCENTER:
+                            switch(cmd)
+                            {
+                                case "BUILD":
+                                    (buildings[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (buildings[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (buildings[index]).StoredTarget = new SCAttackTarget(target, buildings[index]);
+                                    break;
+                                case "STOP":
+                                    (buildings[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (buildings[index]).BuildQueue.Clear();
+                                    (buildings[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case BUILDINGTYPES.FACTORY:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (buildings[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (buildings[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), buildings[index]);
+                                    break;
+                                case "ATTACK":
+                                    (buildings[index]).StoredTarget = new SCAttackTarget(target, buildings[index]);
+                                    break;
+                                case "STOP":
+                                    (buildings[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (buildings[index]).BuildQueue.Clear();
+                                    (buildings[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case BUILDINGTYPES.FOUNDATION:
+                            
+                            break;
+                        case BUILDINGTYPES.LAB:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (buildings[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (buildings[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), buildings[index]);
+                                    break;
+                                case "ATTACK":
+                                    (buildings[index]).StoredTarget = new SCAttackTarget(buildings[index], target);
+                                    break;
+                                case "STOP":
+                                    (buildings[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (buildings[index]).BuildQueue.Clear();
+                                    (buildings[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case BUILDINGTYPES.MINE:
+                            
+                        case BUILDINGTYPES.REFINORY:
+                            switch (cmd)
+                            {
+                                case "MOVE":
+                                    (buildings[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), buildings[index]);
+                                    break;
+                                case "ATTACK":
+                                    (buildings[index]).StoredTarget = new SCAttackTarget(target, buildings[index]);
+                                    break;
+                                case "STOP":
+                                    (buildings[index]).StoredTarget = null;
+                                    break;
+                            }
+                            break;
+                        case BUILDINGTYPES.TURRET:
+                            switch (cmd)
+                            {
+                                case "MOVE":
+                                    (buildings[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), buildings[index]);
+                                    break;
+                                case "ATTACK":
+                                    (buildings[index]).StoredTarget = new SCAttackTarget(target, buildings[index]);
+                                    break;
+                                case "STOP":
+                                    (buildings[index]).StoredTarget = null;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case OBJECTTYPE.ot_unit:
+                    switch(ut)
+                    {
+                        case UNITTYPES.AIRCARRIER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRCOMBAT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRHARVESTER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                                case "HARVEST":
+                                    (units[index]).StoredTarget = new SCHarvestTarget(new Point2D(x, y), units[index]);
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRHERO:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRSUPPORT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                                case "REPAIR":
+                                    (units[index]).StoredTarget = new SCRepairTarget(units[index], units[index]);
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRTRANSPORT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    (units[index]).addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    (units[index]).StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    (units[index]).StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    (units[index]).StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    (units[index]).BuildQueue.Clear();
+                                    (units[index]).cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.AIRWORKER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                                case "REPAIR":
+                                    units[index].StoredTarget = new SCRepairTarget(buildings[index], units[index]);
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDCARRIER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDCOMBAT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDHARVESTER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                                case "HARVEST":
+                                    units[index].StoredTarget = new SCHarvestTarget(new Point2D(x, y), units[index]);
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDHERO:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDSUPPORT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDTRANSPORT:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                            }
+                            break;
+                        case UNITTYPES.GROUNDWORKER:
+                            switch (cmd)
+                            {
+                                case "BUILD":
+                                    units[index].addBuildToken(target.Cost1, target.Cost2, target.Cost3, target.Name);
+                                    break;
+                                case "MOVE":
+                                    units[index].StoredTarget = new SCMoveTarget(new Point2D(x, y), units[index]);
+                                    break;
+                                case "ATTACK":
+                                    units[index].StoredTarget = new SCAttackTarget(target, units[index]);
+                                    break;
+                                case "STOP":
+                                    units[index].StoredTarget = null;
+                                    break;
+                                case "CANCEL":
+                                    units[index].BuildQueue.Clear();
+                                    units[index].cancelBuildToken();
+                                    break;
+                                case "REPAIR":
+                                    units[index].StoredTarget = new SCRepairTarget(buildings[index], units[index]);
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+        }
+        /// <summary>
+        /// Generates a small base
+        /// </summary>
+        /// <param name="world">WorldCell reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">X scaler value</param>
+        /// <param name="scaleY">Y scaler value</param>
+        /// <param name="tier">Base power tier</param>
+        /// <param name="currentCell">RTSCell reference</param>
+        protected void addSmallBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        {
+            OpenWorldCell cell = currentCell;
+            SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
+
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
+            ((RTSCell)cell).clearRadiusInResourceGrid(x, y, 13);
+
+            SCRTSBuilding bld2 = new SCRTSBuilding(bld);
+            int px = (int)((x * scaleX) - (bld2.HitBox.Width / scaleX));
+            int py = (int)((y * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            switch (tier)
+            {
+                case 1:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 2:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 3:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+            }
+
+            /*
+            double direction = 0;
+            int range = 0;
+            Random rand = new Random((int)System.DateTime.Today.Ticks);
+            Point2D pos = null;
+            int px = 0;
+            int py = 0;
+            List<string> bldNames = null;
+            string bldName = "";
+            ((RTSCell)cell).clearSolids(x, y, 7);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.COMMANDCENTER);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
+            ((RTSCell)cell).clearRadiusInResourceGrid(x, y, 13);
+            int fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if(fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            switch (tier)
+            {
+                case 1:
+                    bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 2:
+                    bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 3:
+                    bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+            }
+
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            switch (tier)
+            {
+                case 1:
+                    bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 2:
+                    bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 3:
+                    bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+            }
+
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.SUPPORT);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.SUPPORT);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.SUPPORT);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+            direction = rand.Next(0, 360);
+            range = rand.Next(1000, 15000) / 1000;
+            px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+            py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(px * scaleX, py * scaleY);
+            buildings.Add(bld);
+
+            for (int b = 0; b < 6; b++)
+            {
+                switch (tier)
+                {
+                    case 1:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 2:
+                        bldNames = generateBuildingList(2, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 3:
+                        bldNames = generateBuildingList(3, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                }
+                direction = rand.Next(0, 360);
+                range = rand.Next(1000, 15000) / 1000;
+                px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(px, py, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(1000, 15000) / 1000;
+                    px = x + (int)((Math.Cos(Helpers<int>.degreesToRadians(direction)) * range));
+                    py = y + (int)((Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(px * scaleX, py * scaleY);
+                buildings.Add(bld);
+            }
+            */
+        }
+        /// <summary>
+        /// Generates a medium base
+        /// </summary>
+        /// <param name="world">WorldCell reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">X scaler value</param>
+        /// <param name="scaleY">Y scaler value</param>
+        /// <param name="tier">Base power tier</param>
+        /// <param name="currentCell">RTSCell reference</param>
+        protected void addMediumBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        {
+            OpenWorldCell cell = currentCell;
+            SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
+
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
+            ((RTSCell)cell).clearRadiusInResourceGrid(x, y, 13);
+
+            SCRTSBuilding bld2 = new SCRTSBuilding(bld);
+            int px = (int)((x * scaleX) - (bld2.HitBox.Width / scaleX));
+            int py = (int)((y * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 6) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 3) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 6) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 3) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            switch (tier)
+            {
+                case 1:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 11) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 11) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 8) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 8) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[0].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 2:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 3:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+            }
+            /*
+            OpenWorldCell cell = currentCell;
+            SCRTSBuilding bld = null;
+            double direction = 0;
+            int range = 0;
+            Random rand = new Random((int)System.DateTime.Today.Ticks);
+            Point2D pos = null;
+            List<string> bldNames = null;
+            string bldName = "";
+            ((RTSCell)cell).clearSolids(x, y, 10);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.COMMANDCENTER);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+
+            direction = rand.Next(0, 360);
+            range = rand.Next(2000, 16000) / 1000;
+            pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(pos.IX, pos.IY, 18);
+            ((RTSCell)cell).clearRadiusInResourceGrid(pos.IX, pos.IY, 18);
+            int fails = 0;
+            while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+            buildings.Add(bld);
+
+            switch (tier)
+            {
+                case 1:
+                    bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 2:
+                    bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 3:
+                    bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+            }
+            direction = rand.Next(0, 360);
+            range = rand.Next(2000, 16000) / 1000;
+            pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+            buildings.Add(bld);
+            switch (tier)
+            {
+                case 1:
+                    bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 2:
+                    bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 3:
+                    bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY);
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+            }
+            direction = rand.Next(0, 360);
+            range = rand.Next(2000, 16000) / 1000;
+            pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+            buildings.Add(bld);
+            switch (tier)
+            {
+                case 1:
+                    bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY, "air");
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+                case 2:
+                    bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY, "air");
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName); // air factory
+                    break;
+                case 3:
+                    bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY, "air");
+                    bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                    bld = buildingDB.getData(bldName);
+                    break;
+            }
+            direction = rand.Next(0, 360);
+            range = rand.Next(2000, 16000) / 1000;
+            pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            fails = 0;
+            while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+            buildings.Add(bld);
+            for (int b = 0; b < 6; b++)
+            {
+                bldNames = generateBuildingList(1, BUILDINGTYPES.NONE);
+                bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                bld = buildingDB.getData(bldName);
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 16000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X, pos.Y);
+                buildings.Add(bld);
+            }
+            for (int b = 0; b < 10; b++)
+            {
+                switch (tier)
+                {
+                    case 1:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 2:
+                        bldNames = generateBuildingList(2, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 3:
+                        bldNames = generateBuildingList(3, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                }
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 16000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 16000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+                buildings.Add(bld);
+            }
+            */
+        }
+        /// <summary>
+        /// Generates a large base
+        /// </summary>
+        /// <param name="world">WorldCell reference</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="scaleX">X scaler value</param>
+        /// <param name="scaleY">Y scaler value</param>
+        /// <param name="tier">Base power tier</param>
+        /// <param name="currentCell">RTSCell reference</param>
+        protected void addLargeBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        {
+            OpenWorldCell cell = currentCell;
+            SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
+
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
+            ((RTSCell)cell).clearRadiusInResourceGrid(x, y, 13);
+
+            SCRTSBuilding bld2 = new SCRTSBuilding(bld);
+            int px = (int)((x * scaleX) - (bld2.HitBox.Width / scaleX));
+            int py = (int)((y * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 4) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 1) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 6) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 3) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 6) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 3) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x + 8) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF power plant");
+            bld2 = new SCRTSBuilding(bld);
+            px = (int)(((x - 8) * scaleX) - (bld2.HitBox.Width / scaleX));
+            py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+            bld2.setPos(px, py);
+            buildings.Add(bld2);
+
+            switch (tier)
+            {
+                case 1:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 11) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 11) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 11) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 8) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 8) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air factory T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 11) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 3) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T1");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 15) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 2:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 9) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T2");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 15) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+
+                case 3:
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF factory T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 7) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 4) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base air turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 2) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 7) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 9) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 16) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 16) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x + 15) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y - 12) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+
+                    bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF air base turret T3");
+                    bld2 = new SCRTSBuilding(bld);
+                    px = (int)(((x - 12) * scaleX) - (bld2.HitBox.Width / scaleX));
+                    py = (int)(((y + 15) * scaleY) - (bld2.HitBox.Height / scaleY));
+
+                    bld2.setPos(px, py);
+                    buildings.Add(bld2);
+                    break;
+            }
+            /*
+            OpenWorldCell cell = currentCell;
+            SCRTSBuilding bld = null;
+            double direction = 0;
+            int range = 0;
+            Random rand = new Random((int)System.DateTime.Today.Ticks);
+            Point2D pos = null;
+            List<string> bldNames = null;
+            string bldName = "";
+            ((RTSCell)cell).clearSolids(x, y, 13);
+
+            bldNames = generateBuildingList(1, BUILDINGTYPES.COMMANDCENTER);
+            bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+            bld = buildingDB.getData(bldName);
+
+            direction = rand.Next(0, 360);
+            range = rand.Next(2000, 20000) / 1000;
+            pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+            ((RTSCell)cell).clearRadiusInDoodadLayer2(pos.IX, pos.IY, 23);
+            ((RTSCell)cell).clearRadiusInResourceGrid(pos.IX, pos.IY, 23);
+            int fails = 0;
+            while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+            {
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 20000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails++;
+                if (fails > 30)
+                {
+                    break;
+                }
+            }
+            bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+            buildings.Add(bld);
+
+            for (int b = 0; b < 3; b++)
+            {
+                switch (tier)
+                {
+                    case 1:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 2:
+                        bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 3:
+                        bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                }
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 20000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 20000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+                buildings.Add(bld);
+            }
+            for (int b = 0; b < 2; b++)
+            {
+                switch (tier)
+                {
+                    case 1:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.FACTORY, "air");
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 2:
+                        bldNames = generateBuildingList(2, BUILDINGTYPES.FACTORY, "air");
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 3:
+                        bldNames = generateBuildingList(3, BUILDINGTYPES.FACTORY, "air");
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                }
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 20000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 20000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+                buildings.Add(bld);
+            }
+            for (int b = 0; b < 9; b++)
+            {
+                bldNames = generateBuildingList(1, BUILDINGTYPES.NONE);
+                bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                bld = buildingDB.getData(bldName);
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 20000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 20000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+                buildings.Add(bld);
+            }
+            buildings.Add(bld);
+            for (int b = 0; b < 14; b++)
+            {
+                switch (tier)
+                {
+                    case 1:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 2:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                    case 3:
+                        bldNames = generateBuildingList(1, BUILDINGTYPES.TURRET);
+                        bldName = bldNames.ElementAt(rand.Next(0, bldNames.Count - 1));
+                        bld = buildingDB.getData(bldName);
+                        break;
+                }
+                direction = rand.Next(0, 360);
+                range = rand.Next(2000, 20000) / 1000;
+                pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                    y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                fails = 0;
+                while (((RTSCell)cell).spaceClear(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false &&
+                    ((RTSCell)cell).noResources(pos.IX, pos.IY, (int)(bld.W / scaleX), (int)(bld.H / scaleY)) == false)
+                {
+                    direction = rand.Next(0, 360);
+                    range = rand.Next(2000, 20000) / 1000;
+                    pos = new Point2D(x + (int)(Math.Cos(Helpers<int>.degreesToRadians(direction)) * range),
+                        y + (int)(Math.Sin(Helpers<int>.degreesToRadians(direction)) * range));
+                    fails++;
+                    if (fails > 30)
+                    {
+                        break;
+                    }
+                }
+                bld.setPos(pos.X * scaleX, pos.Y * scaleY);
+                buildings.Add(bld);
+            }
+            */
         }
         /// <summary>
         /// Returns the reference in the unitDB to the lowest cost ground unit
@@ -2732,6 +5022,158 @@ namespace XenoLib
             return false;
         }
         /// <summary>
+        /// Returns true if no buildings in space with a one tile radius
+        /// </summary>
+        /// <param name="x">X position in pixels</param>
+        /// <param name="y">Y position in pixels</param>
+        /// <param name="w">Width in pixels</param>
+        /// <param name="h">Height in pixels</param>
+        /// <returns>Boolean</returns>
+        public bool noBlds(int x, int y, int w, int h)
+        {
+            int w2 = w + 2;
+            int h2 = h + 2;
+            int x2 = x - (w / 2);
+            int y2 = y - (h / 2);
+            Rectangle rect = new Rectangle(x2, y2, w2, h2);
+            for(int b = 0; b < buildings.Count - 1; b++)
+            {
+                if(rect.intersects(buildings[b].HitBox) == true)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        /// <summary>
+        /// Returns a list of building names available for the provided tier, type 
+        /// and substring value
+        /// </summary>
+        /// <param name="tier">Tier value</param>
+        /// <param name="bldType">BUILDINGTYPES value</param>
+        /// <param name="subStr">Substring value</param>
+        /// <returns>List of Strings</returns>
+        public List<string> generateBuildingList(int tier, BUILDINGTYPES bldType, string subStr = "")
+        {
+            string name = "";
+            List<string> buildNames = new List<string>();
+            for(int i = 0; i < buildingDB.Names.Count; i++)
+            {
+                if(buildingDB.getData(i).BT == bldType)
+                {
+                    name = buildingDB.getData(i).Name;
+                    if(subStr != "")
+                    {
+                        if(name.Contains(subStr) == true)
+                        {
+                            switch(tier)
+                            {
+                                case 1:
+                                    if(name.Contains("T3") == false && name.Contains("T2") == false)
+                                    {
+                                        buildNames.Add(name);
+                                    }
+                                    break;
+                                case 2:
+                                    if(name.Contains("T1") == false && name.Contains("T3") == false)
+                                    {
+                                        buildNames.Add(name);
+                                    }
+                                    break;
+                                case 3:
+                                    if(name.Contains("T1") == false && name.Contains("T2") == false)
+                                    {
+                                        buildNames.Add(name);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        switch(tier)
+                        {
+                            case 1:
+                                if(name.Contains("T3") == false && name.Contains("T2") == false)
+                                {
+                                    buildNames.Add(name);
+                                }
+                                break;
+                            case 2:
+                                if(name.Contains("T1") == false && name.Contains("T3") == false)
+                                {
+                                    buildNames.Add(name);
+                                }
+                                break;
+                            case 3:
+                                if(name.Contains("T1") == false && name.Contains("T2") == false)
+                                {
+                                    buildNames.Add(name);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            return buildNames;
+        }
+        /// <summary>
+        /// Takes a refernece to RTSWorld object and a target position for the mobile command center
+        /// and finds a path for it there and paths for all other buildings positioned relative to
+        /// the mobile command center
+        /// </summary>
+        /// <param name="world">RTSWorld reference</param>
+        /// <param name="x">X position in pixels</param>
+        /// <param name="y">Y position in pixels</param>
+        public void setRelativeMovePaths(RTSWorld world, float x, float y)
+        {
+            //find path for mobile command center
+            buildings[0].Path = world.SPF.findPath(buildings[0].Center, new Point2D(x, y));
+
+            //find relative position for each building and than a path to that position
+            double angle = 0;
+            float range = 0;
+            List<Point2D> points = null;
+            Point2D targetPoint = null;
+            RTSCell targetCell = (RTSCell)world.getCurrentCell(x, y);
+
+            for(int i = 1; i < buildings.Count; i++)
+            {
+                angle = Point2D.CalcAngle(buildings[0].Center, buildings[i].Center);
+                range = Point2D.calculateDistance(buildings[0].Center, buildings[i].Center);
+                targetPoint = new Point2D(x + (float)(Math.Cos(Helpers<double>.degreesToRadians(angle)) * range),
+                    y + (float)(Math.Sin(Helpers<double>.degreesToRadians(angle)) * range));
+
+                points = targetCell.getClearTiles(targetPoint.X, targetPoint.Y, 5);
+                targetPoint = findClosestPoint(points, targetPoint);
+
+                buildings[i].Path = world.SPF.findPath(buildings[i].Center, targetPoint);
+            }
+        }
+        /// <summary>
+        /// Finds the closest point to center of points
+        /// </summary>
+        /// <param name="points">List of Point2D objects</param>
+        /// <param name="targetPoint">Center point in points list</param>
+        /// <returns>Point2D object</returns>
+        public Point2D findClosestPoint(List<Point2D> points, Point2D targetPoint)
+        {
+            int dist1 = 999999999;
+            int dist2 = 0;
+            Point2D closestPoint = null;
+            closestPoint = points[0];
+            for(int p = 0; p < points.Count; p++)
+            {
+                dist2 = Point2D.calculateDistance(targetPoint, points[p]);
+                if(dist1 > dist2)
+                {
+                    closestPoint = points[p];
+                    dist1 = dist2;
+                }
+            }
+            return closestPoint;
+        }
+        /// <summary>
         /// UnitDB property
         /// </summary>
         public GenericBank<SCRTSUnit> UnitDB
@@ -2783,35 +5225,35 @@ namespace XenoLib
         /// <summary>
         /// Units property
         /// </summary>
-        public List<XenoSprite> Units
+        public List<SCRTSUnit> Units
         {
             get { return units; }
         }
         /// <summary>
         /// Units property
         /// </summary>
-        public List<XenoSprite> Buildings
+        public List<SCRTSBuilding> Buildings
         {
             get { return buildings; }
         }
         /// <summary>
         /// GroundToGround property
         /// </summary>
-        public List<XenoSprite> Actions
+        public List<SCRTSAction> Actions
         {
             get { return actions; }
         }
         /// <summary>
         /// Particles property
         /// </summary>
-        public List<XenoSprite> Particles
+        public List<SCRTSParticle> Particles
         {
             get { return particles; }
         }
         /// <summary>
         /// AirParticles property
         /// </summary>
-        public List<XenoSprite> AirParticles
+        public List<SCRTSParticle> AirParticles
         {
             get { return airParticles; }
         }

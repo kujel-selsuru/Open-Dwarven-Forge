@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 12/12/23
+//Last Updated 22/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace XenoLib
         protected List<SCRTSCommander> localCommanders;
         protected List<SCScript> scripts;
         protected List<Rectangle> triggerRects;
-        //protected DataGrid<SCRTSDoodad> doodadLayer;
+        protected DataGrid<SCRTSDoodad> doodadLayer2;
 
         //public
 
@@ -46,7 +46,7 @@ namespace XenoLib
             localCommanders = new List<SCRTSCommander>();
             scripts = new List<SCScript>();
             triggerRects = new List<Rectangle>();
-            //doodadLayer = new DataGrid<SCRTSDoodad>(tileWidth, tileHeight);
+            doodadLayer2 = new DataGrid<SCRTSDoodad>(tileWidth, tileHeight);
         }
         /// <summary>
         /// RTSCell from file constructor
@@ -80,6 +80,10 @@ namespace XenoLib
             buffer4 = sr.ReadLine();
             winRect = new Rectangle(Convert.ToInt32(buffer), Convert.ToInt32(buffer2), Convert.ToInt32(buffer3), Convert.ToInt32(buffer4));
             buffer = sr.ReadLine();
+            buffer2 = sr.ReadLine();
+            occupied = new DataGrid<bool>(Convert.ToInt32(buffer), Convert.ToInt32(buffer2));
+            /*
+            buffer = sr.ReadLine();
             buffer = sr.ReadLine();
             buffer2 = sr.ReadLine();
             occupied = new DataGrid<bool>(Convert.ToInt32(buffer), Convert.ToInt32(buffer2));
@@ -98,6 +102,10 @@ namespace XenoLib
                     }
                 }
             }
+            */
+            solids = new List<XenoSprite>();
+            doodadLayer = new DataGrid<XenoDoodad>(1, 1);
+            /*
             buffer = sr.ReadLine();
             solids = new List<XenoSprite>();
             buffer = sr.ReadLine();
@@ -106,12 +114,73 @@ namespace XenoLib
             {
                 solids.Add(new SCRTSDoodad(sr));
             }
-            sprites = new List<XenoSprite>();
+            //used for backwards compatability but not used for RTS games
+            int xx = Convert.ToInt32(sr.ReadLine());
+            int yy = Convert.ToInt32(sr.ReadLine());
+            doodadLayer = new DataGrid<XenoDoodad>(xx, yy);
+            for(int x = 0; x < xx; x++)
+            {
+                for(int y = 0; y < yy; y++)
+                {
+                    buffer = sr.ReadLine();
+                    if(buffer == "obj")
+                    {
+                        doodadLayer.Grid[x, y] = new XenoDoodad(sr);
+                    }
+                    else
+                    {
+                        doodadLayer.Grid[x, y] = null;
+                    }
+                }
+            }
+            */
             buffer = sr.ReadLine();
+            //Console.WriteLine(buffer);
+            int xx = Convert.ToInt32(sr.ReadLine());
+            int yy = Convert.ToInt32(sr.ReadLine());
+            doodadLayer2 = new DataGrid<SCRTSDoodad>(xx, yy);
+            /*
+            for(int x = 0; x < xx; x++)
+            {
+                for (int y = 0; y < yy; y++)
+                {
+                    buffer = sr.ReadLine();
+                    if(buffer == "OBJ")
+                    {
+                        Console.WriteLine(buffer);
+                        SCRTSDoodad dood = new SCRTSDoodad(sr);
+                        doodadLayer2.Grid[x, y] = dood;
+                    }
+                    else
+                    {
+                        //sr.ReadLine();
+                        Console.WriteLine(buffer);
+                        doodadLayer2.Grid[x, y] = null;
+                    }
+                }
+            }
+            */
+            buffer = sr.ReadLine();
+            do
+            {
+                if(buffer == "OBJ")
+                {
+                    SCRTSDoodad dood = new SCRTSDoodad(sr);
+                    int dx = dood.IX / tiles.TileWidth;
+                    int dy = ((dood.IY + tiles.TileHeight) / tiles.TileHeight);
+                    if(doodadLayer2.inDomain(dx, dy) == true)
+                    {
+                        doodadLayer2.Grid[dx, dy] = dood;
+                    }
+                    
+                }
+                buffer = sr.ReadLine();
+            } while(buffer != "======LocalCommanders Data======");
+            sprites = new List<XenoSprite>();
             buffer = sr.ReadLine();
             num = Convert.ToInt32(buffer);
             localCommanders = new List<SCRTSCommander>();
-            for (int c = 0; c < num; c++)
+            for(int c = 0; c < num; c++)
             {
                 localCommanders.Add(new SCRTSCommander(sr));
             }
@@ -129,7 +198,6 @@ namespace XenoLib
             triggerRects = new List<Rectangle>();
             for (int s = 0; s < num; s++)
             {
-                
                 triggerRects.Add(new Rectangle(Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine()), 
                     Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine())));
             }
@@ -186,6 +254,9 @@ namespace XenoLib
             sw.WriteLine(winRect.IY);
             sw.WriteLine((int)winRect.Width);
             sw.WriteLine((int)winRect.Height);
+            sw.WriteLine(occupied.Width);
+            sw.WriteLine(occupied.Height);
+            /*
             sw.WriteLine("======Occupied Data======");
             sw.WriteLine(occupied.Width);
             sw.WriteLine(occupied.Height);
@@ -203,11 +274,50 @@ namespace XenoLib
                     }
                 }
             }
+            */
+            /*
             sw.WriteLine("======Solids Data======");
             sw.WriteLine(solids.Count);
             for(int s = 0; s < solids.Count; s++)
             {
                 ((SCRTSDoodad)solids[s]).saveData(sw);
+            }
+            //used for backwards compatibility but not used in RTS games
+            sw.WriteLine(doodadLayer.Width);
+            sw.WriteLine(doodadLayer.Height);
+            for(int x = 0; x < doodadLayer.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer.Height; y++)
+                {
+                    if(doodadLayer.Grid[x, y] != null)
+                    {
+                        sw.WriteLine("obj");
+                        doodadLayer.Grid[x, y].saveData(sw);
+                    }
+                    else
+                    {
+                        sw.WriteLine("NULL");
+                    }
+                }
+            }
+            */
+            sw.WriteLine("======DoodadLayer2 Data======");
+            sw.WriteLine(doodadLayer2.Width);
+            sw.WriteLine(doodadLayer2.Height);
+            for(int x = 0; x < doodadLayer2.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer2.Height; y++)
+                {
+                    if(doodadLayer2.Grid[x, y] != null)
+                    {
+                        sw.WriteLine("OBJ");
+                        doodadLayer2.Grid[x, y].saveData(sw);
+                    }
+                    else
+                    {
+                        sw.WriteLine("NULL");
+                    }
+                }
             }
             sw.WriteLine("======LocalCommanders Data======");
             sw.WriteLine(localCommanders.Count);
@@ -287,10 +397,25 @@ namespace XenoLib
                 }
             }
             sprites.Clear();
+            for(int x = (CellWin.IX / tiles.TileWidth); x < (CellWin.IX / tiles.TileWidth) + (WinWidth + 2); x++)
+            {
+                for(int y = (CellWin.IY / tiles.TileHeight); y < (CellWin.IY / tiles.TileHeight) + WinHeight + 1; y++)
+                {
+                    if(doodadLayer2.inDomain(x, y) == true)
+                    {
+                        if(doodadLayer2.Grid[x, y] != null)
+                        {
+                            sprites.Add(doodadLayer2.Grid[x, y]);
+                        }
+                    }
+                }
+            }
+            /*
             for (int i = 0; i < solids.Count; i++)
             {
                 sprites.Add(solids[i]);
             }
+            */
             for (int c = 0; c < localCommanders.Count; c++)
             {
                 for (int u = 0; u < localCommanders[c].GroundUnits.Count; u++)
@@ -346,7 +471,14 @@ namespace XenoLib
         /// </summary>
         public void drawDoodads(IntPtr renderer)
         {
-            LayeredSpriteRenderer.sprites = solids;
+            //LayeredSpriteRenderer.sprites = solids;
+            for(int x = CellWin.IX; x < CellWin.IX + WinWidth; x++)
+            {
+                for (int y = CellWin.IY; x < CellWin.IY + WinHeight; y++)
+                {
+                    LayeredSpriteRenderer.sprites.Add(doodadLayer2.Grid[x, y]);
+                }
+            }
             LayeredSpriteRenderer.renderSprites(renderer, winRect.IX, winRect.IY, (int)winRect.Width, (int)winRect.Height);
             
         }
@@ -367,7 +499,7 @@ namespace XenoLib
             }
             else
             {
-                if(cellWin.IX + x <= (tiles.Width * tiles.TileWidth) + x)
+                if(cellWin.IX + x <= (tiles.Width * tiles.TileWidth))// + x)
                 {
                     cellWin.IX += x;
                     winRect.X += x;
@@ -383,7 +515,7 @@ namespace XenoLib
             }
             else
             {
-                if(cellWin.IY + y <= (tiles.Height * tiles.TileHeight) + y)
+                if(cellWin.IY + y <= (tiles.Height * tiles.TileHeight))// + y)
                 {
                     cellWin.IY += y;
                     winRect.Y += y;
@@ -540,6 +672,18 @@ namespace XenoLib
             }
         }
         /// <summary>
+        /// Scales the values in the list of points by the tile width and height
+        /// </summary>
+        /// <param name="points">List of 2D point objects</param>
+        public void scaleAllPoints(List<Point2D> points)
+        {
+            for(int i = 0; i < points.Count; i++)
+            {
+                points[i].X *= tiles.TileWidth;
+                points[i].Y *= tiles.TileHeight;
+            }
+        }
+        /// <summary>
         /// Clears solids in a radius around a point
         /// </summary>
         /// <param name="x">X value in tiles</param>
@@ -549,11 +693,12 @@ namespace XenoLib
         {
             setAllSolidSectors();
             List<Point2D> points = getCircleArea(new Point2D(x, y), radius);
+            scaleAllPoints(points);
             int sector = 0;
-            for(int p = 0; p < points.Count - 1; p++)
+            for(int p = 0; p < points.Count; p++)
             {
                 sector = sg.calculateSector(points[p].IX, points[p].IY);
-                for(int s = 0; s < solids.Count - 1; s++)
+                for(int s = 0; s < solids.Count; s++)
                 {
                     if(solids[s].Sector == sector)
                     {
@@ -563,6 +708,40 @@ namespace XenoLib
                             break;
                         }
                     }
+                }
+            }
+        }
+        /// <summary>
+        /// Clears doodads in doodadLayer2 in a radius around a point
+        /// </summary>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="radius">Radius in tiles</param>
+        public void clearRadiusInDoodadLayer2(int x, int y, int radius = 3)
+        {
+            List<Point2D> points = getCircleArea(new Point2D(x, y), radius);
+            for(int i = 0; i < points.Count; i++)
+            {
+                if(doodadLayer2.inDomain(points[i].IX, points[i].IY) == true)
+                {
+                    doodadLayer2.Grid[points[i].IX, points[i].IY] = null;
+                }
+            }
+        }
+        /// <summary>
+        /// Clears resources in resourceGrid in a radius around a point
+        /// </summary>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="radius">Radius in tiles</param>
+        public void clearRadiusInResourceGrid(int x, int y, int radius = 3)
+        {
+            List<Point2D> points = getCircleArea(new Point2D(x, y), radius);
+            for (int i = 0; i < points.Count; i++)
+            {
+                if (resourceGrid.Fields.inDomain(points[i].IX, points[i].IY) == true)
+                {
+                    resourceGrid.Fields.Grid[points[i].IX, points[i].IY] = null;
                 }
             }
         }
@@ -584,13 +763,141 @@ namespace XenoLib
             {
                 for(int yy = y2; yy < y2 + h2; yy++)
                 {
-                    if(resourceGrid.Fields.Grid[xx, yy] != null)
+                    if (resourceGrid.Fields.inDomain(xx, yy) == true)
                     {
-                        return false;
+                        if (resourceGrid.Fields.Grid[xx, yy] != null)
+                        {
+                            return false;
+                        }
                     }
                 }
             }
             return true;
+        }
+        /// <summary>
+        /// Updates MapGraph for XenoBuildings and XenoDoodads (only sets lower half)
+        /// </summary>
+        /// <param name="mg">MapGraph reference</param>
+        /// <param name="shiftRight">Shift right value</param>
+        /// <param name="shiftDown">Shift down value</param>
+        /// <param name="interior">Is an interior cell</param>
+        public override void updateMGLower(MapGraph mg, int shiftRight, int shiftDown, bool interior)
+        {
+            for(int b = 0; b < buildings.Count; b++)
+            {
+                buildings[b].updateMGLower(mg, shiftRight, shiftDown, interior);
+            }
+            for(int x = 0; x < doodadLayer2.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer2.Height; y++)
+                {
+                    if(interior)
+                    {
+                        if(doodadLayer2.Grid[x, y] != null)
+                        {
+                            mg.setCell(x, y, false);
+                        }
+                    }
+                    else
+                    {
+                        if(doodadLayer2.Grid[x, y] != null)
+                        {
+                            mg.setCell(x + (shiftRight / tiles.Width), y + (shiftDown / tiles.Height), false);
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Updates the occupied layer
+        /// </summary>
+        public void updateOccupied()
+        {
+            //set all ocupied cells as false
+            for(int x = 0; x < occupied.Width; x++)
+            {
+                for (int y = 0; y < occupied.Height; y++)
+                {
+                    occupied.Grid[x, y] = false;
+                }
+            }
+            //check all doodads
+            for(int x = 0; x < doodadLayer2.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer2.Height; y++)
+                {
+                    if(doodadLayer2.Grid[x, y] != null)
+                    {
+                        if(doodadLayer2.inDomain(doodadLayer2.Grid[x, y].Left / tiles.TileWidth,
+                            (doodadLayer2.Grid[x, y].Bottom / tiles.TileHeight)) == true)
+                        {
+                            occupied.Grid[doodadLayer2.Grid[x, y].Left / tiles.TileWidth,
+                                (doodadLayer2.Grid[x, y].Bottom / tiles.TileHeight)] = true;
+                        }
+                    }
+                }
+            }
+            for(int l = 0; l < localCommanders.Count; l++)
+            {
+                //check all ground units
+                int gx = 0;
+                int gy = 0;
+                for(int g = 0; g < localCommanders[l].GroundUnits.Count; g++)
+                {
+                    gx = localCommanders[l].GroundUnits[g].Center.IX / tiles.TileWidth;
+                    gy = localCommanders[l].GroundUnits[g].Center.IY / tiles.TileHeight;
+                    if(occupied.inDomain(gx, gy) == true)
+                    {
+                        occupied.Grid[gx, gy] = true;
+                    }
+                }
+                //check all buildings
+                int bxs = 0;
+                int bys = 0;
+                int bw = 0;
+                int bh = 0;
+                for(int b = 0; b < localCommanders[l].Buildings.Count; b++)
+                {
+                    bxs = localCommanders[l].Buildings[b].Left / tiles.TileWidth;
+                    bw = ((int)localCommanders[l].Buildings[b].W) / tiles.TileWidth;
+                    bys = localCommanders[l].Buildings[b].Top / tiles.TileHeight;
+                    bh = (((int)localCommanders[l].Buildings[b].H) / tiles.TileHeight) - 1;
+                    if (bh >= 2)
+                    {
+                        bh -= 1;
+                    }
+                    for(int bx = bxs; bx < bxs + bw; bx++)
+                    {
+                        for(int by = bys; by < bys + bh; by++)
+                        {
+                            if(occupied.inDomain(bx, by) == true)
+                            {
+                                occupied.Grid[bx, by] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Returns a list of all points in the radius with no doodads present
+        /// </summary>
+        /// <param name="x">X position in cell in pixels</param>
+        /// <param name="y">Y position in cell in pixels</param>
+        /// <param name="radius">radius in tiles</param>
+        /// <returns>List of Point2D objects</returns>
+        public List<Point2D> getClearTiles(float x, float y, int radius = 5)
+        {
+            List<Point2D> points = null;
+            points = Helpers<SCRTSDoodad>.getCircleArea<SCRTSDoodad>(doodadLayer2, new Point2D(x / tiles.TileWidth, y / tiles.TileHeight), radius);
+            for(int i = 0; i < points.Count; i++)
+            {
+                if(doodadLayer2.Grid[points[i].IX, points[i].IY] != null)
+                {
+                    points.RemoveAt(i);
+                }
+            }
+            return points;
         }
         /*
         /// <summary>
@@ -677,11 +984,18 @@ namespace XenoLib
             get { return occupied; }
         }
         /// <summary>
-        /// Solids property
+        /// Solids property (deprecated, use doodadLayer2)
         /// </summary>
         public List<XenoSprite> Solids
         {
             get { return solids; }
+        }
+        /// <summary>
+        /// DoodadLayer2 property
+        /// </summary>
+        public DataGrid<SCRTSDoodad> DoodadLayer2
+        {
+            get { return doodadLayer2; }
         }
         /// <summary>
         /// Sprites prperty
@@ -726,7 +1040,7 @@ namespace XenoLib
             resourceDB = new GenericBank<SCRTSResource>();
             doodadDB = new GenericBank<SCRTSDoodad>();
             scriptNames = new List<string>();
-            occupiedGrid = new DataGrid<bool>(600, 600);
+            occupiedGrid = new DataGrid<bool>(cellWidth* 2, cellHeight * 2);
             renderList = new List<XenoSprite>();
         }
         /// <summary>
@@ -1547,6 +1861,97 @@ namespace XenoLib
                 }
             }
             return false;
+        }
+        /// <summary>
+        /// Sets a tile at a position provided the correct values
+        /// </summary>
+        /// <param name="x">X position in pixels</param>
+        /// <param name="y">Y position in pixels</param>
+        /// <param name="sx">New SX value in pixels</param>
+        /// <param name="sy">New SY value in pixels</param>
+        /// <param name="layer">Tile layer value</param>
+        public void setTile(int x, int y, int sx, int sy, int layer = 1)
+        {
+            if(alpha != null)
+            {
+                if (alpha.inCell(x, y) == true)
+                {
+                    alpha.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                }
+            }
+            else if (beta != null)
+            {
+                if (beta.inCell(x, y) == true)
+                {
+                    beta.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                }
+            }
+            else if (delta != null)
+            {
+                if (delta.inCell(x, y) == true)
+                {
+                    delta.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                }
+            }
+            else if (gamma != null)
+            {
+                if (gamma.inCell(x, y) == true)
+                {
+                    gamma.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                }
+            }
+        }
+        /// <summary>
+        /// Updates current commanders in cell
+        /// </summary>
+        public void updateLocalCommanders()
+        {
+            if(alpha != null)
+            {
+                ((RTSCell)alpha).LocalCommanders.Clear();
+                ((RTSCell)alpha).LocalCommanders.Add(commanders[0]);
+                ((RTSCell)alpha).LocalCommanders.Add(commanders[1]);
+            }
+            if(beta != null)
+            {
+                ((RTSCell)beta).LocalCommanders.Clear();
+                ((RTSCell)beta).LocalCommanders.Add(commanders[0]);
+                ((RTSCell)beta).LocalCommanders.Add(commanders[1]);
+            }
+            if(delta != null)
+            {
+                ((RTSCell)delta).LocalCommanders.Clear();
+                ((RTSCell)delta).LocalCommanders.Add(commanders[0]);
+                ((RTSCell)delta).LocalCommanders.Add(commanders[1]);
+            }
+            if(gamma != null)
+            {
+                ((RTSCell)gamma).LocalCommanders.Clear();
+                ((RTSCell)gamma).LocalCommanders.Add(commanders[0]);
+                ((RTSCell)gamma).LocalCommanders.Add(commanders[1]);
+            }
+        }
+        /// <summary>
+        /// Updates the occuiped layer in all active cells
+        /// </summary>
+        public void updateOccuipedLayerInCells()
+        {
+            if(alpha != null)
+            {
+                ((RTSCell)alpha).updateOccupied();
+            }
+            if(beta != null)
+            {
+                ((RTSCell)beta).updateOccupied();
+            }
+            if(delta != null)
+            {
+                ((RTSCell)delta).updateOccupied();
+            }
+            if(gamma != null)
+            {
+                ((RTSCell)gamma).updateOccupied();
+            }
         }
         /// <summary>
         /// Commanders property

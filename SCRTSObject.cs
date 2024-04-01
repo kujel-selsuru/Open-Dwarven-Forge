@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 12/04/23
+//Last Updated 03/02/24
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -56,6 +56,7 @@ namespace XenoLib
     {
         SELF = 0,
         SHOOT,
+        ANTIAIR,
         BOMBARD,
         TARGET,
         PASSIVE,
@@ -90,6 +91,7 @@ namespace XenoLib
         REFINORY,
         BUNKER,
         MINE,
+        SUPPORT,
         NONE,
         FOUNDATION
     }
@@ -117,6 +119,158 @@ namespace XenoLib
         NONE
     };
 
+    /// <summary>
+    /// A class that stores and builds build unit commands in buildings/units
+    /// </summary>
+    public class SCRTSBuildToken
+    {
+        //protected
+        protected int cost1;
+        protected int cost2;
+        protected int cost3;
+        protected string name;
+        protected SCRTSUnit owner;
+        protected int constructed;
+        protected int constructionCost;
+
+        //public
+        /// <summary>
+        /// BuildToken constructor
+        /// </summary>
+        /// <param name="cost1">Cost value 1</param>
+        /// <param name="cost2">Cost value 2</param>
+        /// <param name="cost3">Cost value 3</param>
+        /// <param name="name">Name of object to build</param>
+        /// <param name="owner">Owner of BuildToken</param>
+        public SCRTSBuildToken(int cost1, int cost2, int cost3, string name, SCRTSUnit owner)
+        {
+            this.cost1 = cost1;
+            this.cost2 = cost2;
+            this.cost3 = cost3;
+            this.name = name;
+            this.owner = owner;
+            constructed = 0;
+            constructionCost = (cost1 * 10) + (cost2 * 15) + (cost3 * 20);
+        }
+        /// <summary>
+        /// BuildToekn from file constructor
+        /// </summary>
+        /// <param name="sr">StreamReader reference</param>
+        /// <param name="owner">Object instance that owns this instance</param>
+        public SCRTSBuildToken(System.IO.StreamReader sr, SCRTSUnit owner)
+        {
+            sr.ReadLine();
+            this.cost1 = Convert.ToInt32(sr.ReadLine());
+            this.cost2 = Convert.ToInt32(sr.ReadLine());
+            this.cost3 = Convert.ToInt32(sr.ReadLine());
+            this.name = sr.ReadLine();
+            this.owner = owner;
+            constructed = Convert.ToInt32(sr.ReadLine());
+            constructionCost = (cost1 * 10) + (cost2 * 15) + (cost3 * 20);
+        }
+        /// <summary>
+        /// BuildToken copy constructor
+        /// </summary>
+        /// <param name="obj">BuildToekn instance reference</param>
+        public SCRTSBuildToken(SCRTSBuildToken obj)
+        {
+            this.cost1 = obj.Cost1;
+            this.cost2 = obj.Cost1;
+            this.cost3 = obj.Cost1;
+            this.name = obj.Name;
+            this.owner = obj.Owner;
+            constructed = obj.Constructed;
+            constructionCost = (cost1 * 10) + (cost2 * 15) + (cost3 * 20);
+        }
+        /// <summary>
+        /// Saves token data to file stream
+        /// </summary>
+        /// <param name="sw">Streamwriter reference</param>
+        public virtual void saveData(System.IO.StreamWriter sw)
+        {
+            sw.WriteLine("======BuildToken Data======");
+            sw.WriteLine(cost1);
+            sw.WriteLine(cost2);
+            sw.WriteLine(cost3);
+            sw.WriteLine(name);
+            sw.WriteLine(constructed);
+        }
+        /// <summary>
+        /// Updates internal state
+        /// </summary>
+        /// <param name="rotation">Rotation of unit created</param>
+        public void update(int rotation = 0)
+        {
+            constructed++;
+            if (constructed >= constructionCost)
+            {
+                owner.Commander.addUnit(name, owner.RallyPoint.IX, owner.RallyPoint.IY);
+            }
+        }
+        /// <summary>
+        /// Percentage property
+        /// </summary>
+        public float Percentage
+        {
+            get { return (float)constructed / (float)constructionCost; }
+        }
+        /// <summary>
+        /// Cost 1 property
+        /// </summary>
+        public int Cost1
+        {
+            get { return cost1; }
+            set { cost1 = value; }
+        }
+        /// <summary>
+        /// Cost 2 property
+        /// </summary>
+        public int Cost2
+        {
+            get { return cost2; }
+            set { cost2 = value; }
+        }
+        /// <summary>
+        /// Cost 3 property
+        /// </summary>
+        public int Cost3
+        {
+            get { return cost3; }
+            set { cost3 = value; }
+        }
+        /// <summary>
+        /// Name property
+        /// </summary>
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+        /// <summary>
+        /// Owner property
+        /// </summary>
+        public SCRTSUnit Owner
+        {
+            get { return owner; }
+            set { owner = value; }
+        }
+        /// <summary>
+        /// Constructed property
+        /// </summary>
+        public int Constructed
+        {
+            get { return constructed; }
+            set { constructed = value; }
+        }
+        /// <summary>
+        /// ConstructionCost property
+        /// </summary>
+        public int ConstructionCost
+        {
+            get { return constructionCost; }
+            //set { constructed = value; }
+        }
+    }
     public class SCRTSObject : XenoSprite
     {
         //protected
@@ -306,6 +460,7 @@ namespace XenoLib
     {
         //protected
         protected Point2D pivot;
+        protected Point2D relativePos;
         protected int length;
         protected int fromCenter;
         protected float theta;
@@ -329,7 +484,8 @@ namespace XenoLib
         /// <param name="fromCenter">Distence from owner center</param>
         public SCRTSTurret(string name, float x, float y, int width,
             int height, int numFrames, string sourceName, int hp = 100, int px = 0,
-            int py = 0, int length = 10, int fromCenter = 1) :
+            int py = 0, int length = 10, int fromCenter = 1, float relativeX = 1, 
+            float relativeY = 1) :
             base(name, x, y, width, height, numFrames, sourceName, hp)
         {
             pivot = new Point2D(px, py);
@@ -344,6 +500,7 @@ namespace XenoLib
             {
                 turretName = name;
             }
+            relativePos = new Point2D(relativeX, relativeY);
         }
         /// <summary>
         /// RTSTurret from file constructor 
@@ -358,6 +515,7 @@ namespace XenoLib
             fromCenter = Convert.ToInt32(sr.ReadLine());
             theta = (float)Convert.ToDecimal(sr.ReadLine());
             turretName = sr.ReadLine();
+            relativePos = new Point2D(Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine()));
         }
         /// <summary>
         /// RTSTurret copy constructor
@@ -370,6 +528,7 @@ namespace XenoLib
             fromCenter = obj.FromCenter;
             theta = obj.Theta;
             turretName = obj.TurretName;
+            relativePos = new Point2D(obj.RelativePos.IX, obj.RelativePos.IY);
         }
         /// <summary>
         /// Save data override
@@ -385,6 +544,8 @@ namespace XenoLib
             sw.WriteLine(fromCenter);
             sw.WriteLine(theta);
             sw.WriteLine(turretName);
+            sw.WriteLine(relativePos.IX);
+            sw.WriteLine(relativePos.IY);
         }
         /// <summary>
         /// Override draw
@@ -394,8 +555,8 @@ namespace XenoLib
         /// <param name="winy">Window Y offset</param>
         public override void draw(IntPtr renderer, int winx = 0, int winy = 0)
         {
-            destRect.x = (int)hitBox.X - pivot.IX + winx;
-            destRect.y = (int)hitBox.Y - pivot.IY + winy;
+            destRect.x = (int)hitBox.X - (pivot.IX + winx);
+            destRect.y = (int)hitBox.Y - (pivot.IY + winy);
             SimpleDraw.draw(renderer, source, srcRect, destRect,
                 selfAngle, pivot);
         }
@@ -471,6 +632,16 @@ namespace XenoLib
             return false;
         }
         /// <summary>
+        /// Overrides setPos function to update relativePos as well as position
+        /// </summary>
+        /// <param name="x">X position in pixels</param>
+        /// <param name="y">Y position in pixels</param>
+        public override void setPos(float x, float y)
+        {
+            base.setPos(x, y);
+            relativePos = new Point2D(x, y);
+        }
+        /// <summary>
         /// Returns turret tip
         /// </summary>
         public Point2D TurretTip
@@ -523,6 +694,14 @@ namespace XenoLib
             get { return turretName; }
             set { turretName = value; }
         }
+        /// <summary>
+        /// RelativePos property
+        /// </summary>
+        public Point2D RelativePos
+        {
+            get { return relativePos; }
+            set { relativePos = value; }
+        }
     }
     public class SCRTSUnit : SCRTSObject
     {
@@ -553,6 +732,9 @@ namespace XenoLib
         protected int maxShields;
         protected SCRTSStatus status;
         protected TURRETTYPES tt;
+        protected Queue<SCRTSBuildToken> buildQueue;
+        protected SCRTSBuildToken buildToken;
+        protected Point2D rallyPoint;
 
         //public 
         /// <summary>
@@ -606,6 +788,9 @@ namespace XenoLib
             status = null;
             Path = new List<Point2D>();
             tt = TURRETTYPES.ORBITS;
+            buildQueue = new Queue<SCRTSBuildToken>();
+            buildToken = null;
+            rallyPoint = new Point2D(x, y + height + 1);
         }
         /// <summary>
         /// SCRTSUnit from file constructor 
@@ -667,6 +852,21 @@ namespace XenoLib
             maxShields = Convert.ToInt32(sr.ReadLine());
             status = new SCRTSStatus(sr);
             tt = (TURRETTYPES)Convert.ToInt32(sr.ReadLine());
+            buildQueue = new Queue<SCRTSBuildToken>();
+            num = Convert.ToInt32(sr.ReadLine());
+            for(int i = 0; i < num; i++)
+            {
+                buildQueue.Enqueue(new SCRTSBuildToken(sr, this));
+            }
+            if (sr.ReadLine() != null)
+            {
+                buildToken = new SCRTSBuildToken(sr, this);
+            }
+            else
+            {
+                buildToken = null;
+            }
+            rallyPoint = new Point2D(Convert.ToUInt32(sr.ReadLine()), Convert.ToUInt32(sr.ReadLine()));
         }
         /// <summary>
         /// SCRTSUnit copy constructor
@@ -718,6 +918,12 @@ namespace XenoLib
             maxShields = obj.MaxShields;
             status = obj.Status;
             tt = obj.TT;
+            buildQueue = new Queue<SCRTSBuildToken>();
+            for(int i = 0; i < obj.BuildQueue.Count; i++)
+            {
+                buildQueue.Enqueue(new SCRTSBuildToken(obj.BuildQueue.ElementAt(i)));
+            }
+            rallyPoint = new Point2D(obj.RallyPoint.X, obj.RallyPoint.Y);
         }
         /// <summary>
         /// Save data override
@@ -766,6 +972,13 @@ namespace XenoLib
             sw.WriteLine(maxShields);
             status.saveData(sw);
             sw.WriteLine(Convert.ToInt32(tt));
+            sw.WriteLine(buildQueue.Count);
+            for(int i = 0; i < buildQueue.Count; i++)
+            {
+                buildQueue.ElementAt(i).saveData(sw);
+            }
+            sw.WriteLine(rallyPoint.IX);
+            sw.WriteLine(rallyPoint.IY);
         }
         /// <summary>
         /// Updates SCRTSUnit internal state
@@ -816,7 +1029,7 @@ namespace XenoLib
             base.draw(renderer, winx, winy);
             for(int t = 0; t < turrets.Count; t++)
             {
-                turrets[t].draw(renderer, -winx, -winy);
+                turrets[t].draw(renderer, winx, winy);
             }
         }
         /// <summary>
@@ -1692,6 +1905,59 @@ namespace XenoLib
 
         }
         /// <summary>
+        /// Adds a turret at the specified position relative unit's position
+        /// </summary>
+        /// <param name="turret">SCRTSTurret reference</param>
+        /// <param name="x">X position on unit</param>
+        /// <param name="y">Y position on unit</param>
+        public void addTurret(SCRTSTurret turret, float x, float y)
+        {
+            turret.X = X + x;
+            turret.Y = Y + y;
+            turrets.Add(turret);
+        }
+        /// <summary>
+        /// Overrides setPos, adds turret position setting in addition to base object
+        /// </summary>
+        /// <param name="x">X position in pixels</param>
+        /// <param name="y">Y position in pixels</param>
+        public override void setPos(float x, float y)
+        {
+            base.setPos(x, y);
+            for(int t = 0; t < turrets.Count; t++)
+            {
+                turrets[t].IX = hitBox.IX + turrets[t].RelativePos.IX;
+                turrets[t].IY = hitBox.IY + turrets[t].RelativePos.IY;
+            }
+        }
+        /// <summary>
+        /// Adds a build token for a specified cost and name, can only have up to ten tokens queued
+        /// </summary>
+        /// <param name="cost1">Cost 1</param>
+        /// <param name="cost2">Cost 2</param>
+        /// <param name="cost3">Cost 3</param>
+        /// <param name="name">Name of unit/object to create</param>
+        public void addBuildToken(int cost1, int cost2, int cost3, string name)
+        {
+            if (buildQueue.Count < 10)
+            {
+                buildQueue.Enqueue(new SCRTSBuildToken(cost1, cost2, cost3, name, this));
+            }
+        }
+        /// <summary>
+        /// Cancel a build token and recover spent resources
+        /// </summary>
+        public void cancelBuildToken()
+        {
+            if (buildToken != null)
+            {
+                commander.ResourceCount1 += buildToken.Cost1;
+                commander.ResourceCount2 += buildToken.Cost2;
+                commander.ResourceCount3 += buildToken.Cost3;
+                buildToken = null;
+            }
+        }
+        /// <summary>
         /// Turrets property
         /// </summary>
         public List<SCRTSTurret> Turrets
@@ -1880,13 +2146,36 @@ namespace XenoLib
             get { return tt; }
             set { tt = value; }
         }
+        /// <summary>
+        /// BuildQueue propertry
+        /// </summary>
+        public Queue<SCRTSBuildToken> BuildQueue
+        {
+            get { return buildQueue; }
+        }
+        /// <summary>
+        /// BuildToken property
+        /// </summary>
+        public SCRTSBuildToken BldToken
+        {
+            get { return buildToken; }
+            set { buildToken = value; }
+        }
+        /// <summary>
+        /// RallyPoint property
+        /// </summary>
+        public Point2D RallyPoint
+        {
+            get { return rallyPoint; }
+            set { rallyPoint = value; }
+        }
     }
     public class SCRTSBuilding : SCRTSUnit
     {
         //protected
         protected BUILDINGTYPES bt;
         protected string buildingName;
-        protected Point2D rallyPoint;
+        //protected Point2D rallyPoint;
         protected bool selfAssembling;
 
         //public
@@ -1913,7 +2202,7 @@ namespace XenoLib
             {
                 buildingName = name;
             }
-            rallyPoint = new Point2D(MidBottom.X, MidBottom.Y + 32);
+            //rallyPoint = new Point2D(MidBottom.X, MidBottom.Y + 32);
             selfAssembling = false;
         }
         /// <summary>
@@ -1926,8 +2215,8 @@ namespace XenoLib
             sr.ReadLine();
             bt = (BUILDINGTYPES)Convert.ToInt32(sr.ReadLine());
             buildingName = sr.ReadLine();
-            rallyPoint = new Point2D(Convert.ToInt32(sr.ReadLine()),
-                Convert.ToInt32(sr.ReadLine()));
+            //rallyPoint = new Point2D(Convert.ToInt32(sr.ReadLine()),
+            //    Convert.ToInt32(sr.ReadLine()));
         }
         /// <summary>
         /// SCRTSBuilding copy constructor
@@ -1937,7 +2226,7 @@ namespace XenoLib
         {
             bt = obj.BT;
             buildingName = obj.BuildingName;
-            rallyPoint = new Point2D();
+            //rallyPoint = new Point2D();
         }
         /// <summary>
         /// Save data override
@@ -1949,8 +2238,8 @@ namespace XenoLib
             sw.WriteLine("======SCRTSBuilding Data======");
             sw.WriteLine((int)bt);
             sw.WriteLine(buildingName);
-            sw.WriteLine(rallyPoint.IX);
-            sw.WriteLine(rallyPoint.IY);
+            //sw.WriteLine(rallyPoint.IX);
+            //sw.WriteLine(rallyPoint.IY);
         }
         /// <summary>
         /// Updates RTSBuilding internal state
@@ -2037,6 +2326,7 @@ namespace XenoLib
             get { return buildingName; }
             set { buildingName = value; }
         }
+        /*
         /// <summary>
         /// RallyPoint property
         /// </summary>
@@ -2045,6 +2335,7 @@ namespace XenoLib
             get { return rallyPoint; }
             set { rallyPoint = value; }
         }
+        */
         /// <summary>
         /// SelfAssembling property
         /// </summary>
@@ -3188,8 +3479,8 @@ namespace XenoLib
             base.draw(renderer, winx, winy);
             if(recharge.Active == true)
             {
-                int tx = SimpleFont.stringRenderWidth(recharge.Ticks.ToString(), 0.75f);
-                SimpleFont.drawColourString(renderer, recharge.Ticks.ToString(), 
+                int tx = SimpleFont.stringRenderWidth(recharge.Percentage.ToString(), 0.75f);
+                SimpleFont.drawColourString(renderer, recharge.Percentage.ToString(), 
                     center.IX - (tx / 2), center.IY - 8, "yellow", 0.75f);
             }
         }
