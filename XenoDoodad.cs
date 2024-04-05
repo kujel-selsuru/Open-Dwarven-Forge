@@ -35,13 +35,29 @@ namespace XenoLib
             //source = TextureBank.getTexture(name);
         }
         /// <summary>
-        /// XenoDoodad from fie constructor
+        /// XenoDoodad copy constructor
+        /// </summary>
+        /// <param name="obj">XenoDoodad reference</param>
+        public XenoDoodad(XenoDoodad obj) : base(obj)
+        {
+
+        }
+        /// <summary>
+        /// XenoDoodad from file constructor
         /// </summary>
         /// <param name="source">Texture2D reference</param>
         /// <param name="sr">StreamReader reference</param>
         public XenoDoodad(Texture2D source, StreamReader sr) : base(source, sr)
         {
             //source = TextureBank.getTexture(name);
+        }
+        /// <summary>
+        /// XenoDoodad from file constructor
+        /// </summary>
+        /// <param name="sr">StreamReader reference</param>
+        public XenoDoodad(StreamReader sr) : base(default(Texture2D), sr)
+        {
+            source = TextureBank.getTexture(name);
         }
         /// <summary>
         /// XenoDoodad save data

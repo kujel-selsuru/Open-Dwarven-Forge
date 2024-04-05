@@ -53,6 +53,19 @@ namespace XenoLib
             this.toInterior = toInterior;
         }
         /// <summary>
+        /// XenoPortal copy constructor
+        /// </summary>
+        /// <param name="obj">XenoPortal reference</param>
+        public XenoPortal(XenoPortal obj) : base(obj)
+        {
+            this.cx = obj.cx;
+            this.cy = obj.cy;
+            this.tx = obj.tx;
+            this.ty = obj.ty;
+            this.cellName = obj.cellName;
+            this.toInterior = obj.toInterior;
+        }
+        /// <summary>
         /// XenoPortal from file constructor
         /// </summary>
         /// <param name="source">Texture2D reference</param>

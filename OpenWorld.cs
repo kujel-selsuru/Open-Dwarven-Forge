@@ -42,10 +42,13 @@ namespace XenoLib
         protected int cellBottomSide;
         protected List<XenoPortal> portals;
         protected List<XenoBuilding> buildings;
-        protected List<XenoDoodad> doodads;
+        protected List<XenoDoodad> doodads;//deprecated
+        protected DataGrid<XenoDoodad> doodadLayer;
         protected bool spawnable;
         protected Random rand;
         protected MapGraph localMG;
+        protected List<string> localScripts;
+        protected OpenWorld world;
 
         //public
         /// <summary>
@@ -69,9 +72,11 @@ namespace XenoLib
         /// <param name="randomize">Randomize flag</param>
         /// <param name="sourceW">Source width in tiles</param>
         /// <param name="sourceH">Source height in tiles</param>
+        /// <param name="world">OpenWorld reference</param>
         public OpenWorldCell(Texture2D source, Texture2D autoSource, int width, int height, int tileWidth, 
             int tileHeight, int winWidth, int winHeight, int winx, int winy, int cellx, int celly, 
-            string name, bool spawnable = true, bool fill = true, bool randomize = false, int sourceW = 5, int sourceH = 7)
+            string name, bool spawnable = true, bool fill = true, bool randomize = false, int sourceW = 5, 
+            int sourceH = 7, OpenWorld world = null)
         {
             this.source = source;
             tiles = new XenoTileSys(source, width, height, winWidth, winHeight, winx, winy, tileWidth, tileHeight, fill, randomize, sourceW, sourceH);
@@ -90,12 +95,77 @@ namespace XenoLib
             portals = new List<XenoPortal>();
             buildings = new List<XenoBuilding>();
             doodads = new List<XenoDoodad>();
+            doodadLayer = new DataGrid<XenoDoodad>(width, height);
             this.spawnable = spawnable;
             interSource = source;
             interAutoSource = autoSource;
             rand = new Random((int)System.DateTime.Now.Ticks);
             localMG = new MapGraph(width, height);
             localMG.setAllTrue();
+            localScripts = new List<string>();
+            this.world = world;
+        }
+        /// <summary>
+        /// OpenWorldCell copy constructor
+        /// </summary>
+        /// <param name="obj">OpenWorldCell reference</param>
+        public OpenWorldCell(OpenWorldCell obj)
+        {
+            this.source = obj.Source;
+            tiles = new XenoTileSys(obj.Tiles);
+            autoTiles = new AutoTileSys(obj.AutoTiles);
+            sg = new SectorGraph64(obj.SG);
+            this.name = obj.Name;
+            this.cellx = obj.cellx;
+            this.celly = obj.celly;
+            this.worldx = obj.WorldX;
+            this.worldy = obj.WorldY;
+            isInteriorCell = obj.IsInteriorCell;
+            cellLeftSide = obj.CellLeftSide;
+            cellTopSide = obj.CellTopSide;
+            cellRightSide = obj.CellRightSide;
+            cellBottomSide = obj.CellBottomSide;
+            portals = new List<XenoPortal>();
+            for (int i = 0; i < obj.Portals.Count; i++)
+            {
+                portals.Add(new XenoPortal(obj.Portals[i]));
+            }
+            buildings = new List<XenoBuilding>();
+            for (int i = 0; i < obj.Buildings.Count; i++)
+            {
+                buildings.Add(new XenoBuilding(obj.Buildings[i]));
+            }
+            doodads = new List<XenoDoodad>();
+            for (int i = 0; i < obj.Doodads.Count; i++)
+            {
+                doodads.Add(new XenoDoodad(obj.Doodads[i]));
+            }
+            doodadLayer = new DataGrid<XenoDoodad>(obj.DoodadLayer.Width, obj.DoodadLayer.Height);
+            for(int x = 0; x < obj.Width; x++)
+            {
+                for(int y = 0; y < obj.Height; y++)
+                {
+                    if(doodadLayer.Grid[x, y] == null)
+                    {
+                        doodadLayer.Grid[x, y] = null;
+                    }
+                    else
+                    {
+                        doodadLayer.Grid[x, y] = new XenoDoodad(doodadLayer.Grid[x, y]);
+                    }
+                }
+            }
+            this.spawnable = obj.Spawnable;
+            interSource = obj.InterSource;
+            interAutoSource = obj.AutoSource;
+            rand = new Random((int)System.DateTime.Now.Ticks);
+            localMG = new MapGraph(obj.LocalMG);
+            localScripts = new List<string>();
+            for(int i = 0; i < obj.LocalScripts.Count; i++)
+            {
+                localScripts.Add(new string(obj.LocalScripts[i].ToCharArray()));
+            }
+            this.world = obj.world;
         }
         /// <summary>
         /// OpenWorld from file constructor
@@ -105,7 +175,8 @@ namespace XenoLib
         /// <param name="winWidth">Window width in tiles</param>
         /// <param name="winHeight">Window height in tiles</param>
         /// <param name="sr">StreamReader reference</param>
-        public OpenWorldCell(Texture2D source, Texture2D autoSource, int winWidth, int winHeight, StreamReader sr)
+        /// <param name="world">OpenWorld reference</param>
+        public OpenWorldCell(Texture2D source, Texture2D autoSource, int winWidth, int winHeight, StreamReader sr, OpenWorld world = null)
         {
             this.source = source;
             this.autoSource = autoSource;
@@ -144,6 +215,26 @@ namespace XenoLib
                 //doodads use generic graphics for easier loading (can internally change reference)
                 doodads.Add(new XenoDoodad(TextureBank.getTexture("doodad"), sr));
             }
+            int xx = Convert.ToInt32(sr.ReadLine());
+            int yy = Convert.ToInt32(sr.ReadLine());
+            doodadLayer = new DataGrid<XenoDoodad>(xx, yy);
+            string buffer = "";
+            for (int x = 0; x < xx; x++)
+            {
+                for (int y = 0; y < yy; y++)
+                {
+                    buffer = sr.ReadLine();
+                    if(buffer == "obj")
+                    {
+                        doodadLayer.Grid[x, y] = new XenoDoodad(sr);
+                    }
+                    else
+                    {
+                        sr.ReadLine();
+                        doodadLayer.Grid[x, y] = null;
+                    }
+                }
+            }
             cellLeftSide = cellx * (Width * tiles.TileWidth);
             cellTopSide = celly * (Height * tiles.TileHeight);
             cellRightSide = cellLeftSide + (tiles.TileWidth * tiles.Width);
@@ -153,6 +244,14 @@ namespace XenoLib
             rand = new Random((int)System.DateTime.Now.Ticks);
             localMG = new MapGraph(tiles.TileWidth, tiles.TileHeight);
             localMG.setAllTrue();
+            localScripts = new List<string>();
+            sr.ReadLine();
+            num = Convert.ToInt32(sr.ReadLine());
+            for(int i = 0; i < num - 1; i++)
+            {
+                localScripts.Add(sr.ReadLine());
+            }
+            this.world = world;
         }
         /// <summary>
         /// Uninitialized constructor, used for loading custom constructors
@@ -181,6 +280,9 @@ namespace XenoLib
             rand = new Random((int)System.DateTime.Now.Ticks);
             localMG = new MapGraph(1, 1);
             localMG.setAllTrue();
+            localScripts = new List<string>();
+            doodadLayer = new DataGrid<XenoDoodad>(1, 1);
+            world = null;
         }
         /// <summary>
         /// Saves data
@@ -226,7 +328,30 @@ namespace XenoLib
             {
                 doodads[d].saveData(sw);
             }
+            sw.WriteLine(doodadLayer.Width);
+            sw.WriteLine(doodadLayer.Height);
+            for(int x = 0; x < doodadLayer.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer.Height; y++)
+                {
+                    if(doodadLayer.Grid[x, y] != null)
+                    {
+                        sw.WriteLine("obj");
+                        doodadLayer.Grid[x, y].saveData(sw);
+                    }
+                    else
+                    {
+                        sw.WriteLine("NULL");
+                    }
+                }
+            }
             localMG.save(sw);
+            sw.WriteLine("======LocalScripts Data======");
+            sw.WriteLine(localScripts.Count);
+            for(int i = 0; i < localScripts.Count - 1; i++)
+            {
+                sw.WriteLine(localScripts[i]);
+            }
             if(saveAuto)
             {
                 sw.Close();
@@ -267,7 +392,30 @@ namespace XenoLib
             {
                 doodads[d].saveData(sw);
             }
+            sw.WriteLine(doodadLayer.Width);
+            sw.WriteLine(doodadLayer.Height);
+            for(int x = 0; x < doodadLayer.Width; x++)
+            {
+                for(int y = 0; y < doodadLayer.Height; y++)
+                {
+                    if(doodadLayer.Grid[x, y] != null)
+                    {
+                        sw.WriteLine("obj");
+                        doodadLayer.Grid[x, y].saveData(sw);
+                    }
+                    else
+                    {
+                        sw.WriteLine("NULL");
+                    }
+                }
+            }
             //localMG.save(sw);
+            sw.WriteLine("======LocalScripts Data======");
+            sw.WriteLine(localScripts.Count);
+            for (int i = 0; i < localScripts.Count - 1; i++)
+            {
+                sw.WriteLine(localScripts[i]);
+            }
             if (saveAuto)
             {
                 sw.Close();
@@ -1668,19 +1816,25 @@ namespace XenoLib
                     points = getCircleArea(center, 13);
                     break;
             }
-            for (int i = 0; i < points.Count - 1; i++)
+            for (int i = 0; i < points.Count; i++)
             {
-                for (int k = 0; k < doodads.Count - 1; k++)
+                doodadLayer.Grid[points[i].IX, points[i].IY] = null;
+            }
+                /*
+                for (int i = 0; i < points.Count; i++)
                 {
-                    if (doodads[k].IX == points[i].IX &&
-                        doodads[k].IY == points[i].IY)
+                    for (int k = 0; k < doodads.Count; k++)
                     {
-                        doodads.RemoveAt(k);
-                        break;
+                        if (doodads[k].IX == (points[i].IX * tiles.TileWidth) &&
+                            doodads[k].IY == (points[i].IY * tiles.TileHeight))
+                        {
+                            doodads.RemoveAt(k);
+                            break;
+                        }
                     }
                 }
+                */
             }
-        }
         /// <summary>
         /// Gets a list of points generating a circle centered around a point
         /// </summary>
@@ -1948,6 +2102,20 @@ namespace XenoLib
         {
             get { return doodads; }
         }
+        /// <summary>
+        /// DoodadLayer property
+        /// </summary>
+        public DataGrid<XenoDoodad> DoodadLayer
+        {
+            get { return doodadLayer; }
+        }
+        /// <summary>
+        /// LocalScripts property
+        /// </summary>
+        public List<string> LocalScripts
+        {
+            get { return localScripts; }
+        }
     }
     /// <summary>
     /// OpenWorld class
@@ -2004,6 +2172,7 @@ namespace XenoLib
         protected string saveFolderPath;
         protected string planet;
         protected bool isPlanet;
+        protected List<string> worldScripts;
         //interior variables \/\/\/
         protected int interX;
         protected int interY;
@@ -2083,6 +2252,75 @@ namespace XenoLib
             interAutoSource = autoSource;
             this.planet = planet;
             this.isPlanet = isPlanet;
+            worldScripts = new List<string>();
+        }
+        /// <summary>
+        /// OpenWorld copy constructor
+        /// </summary>
+        /// <param name="obj">OpenWorld reference</param>
+        public OpenWorld(OpenWorld obj)
+        {
+            alpha = obj.Alpha;
+            beta = obj.Beta;
+            delta = obj.Delta;
+            gamma = obj.Gamma;
+            mg = new MapGraph(mg);
+            spf = new SimplePathFinder(obj.TileWidth, 1000, mg, 1);
+            creatures = new List<XenoSprite>();
+            for(int i = 0; i < obj.Creatures.Count; i++)
+            {
+                creatures.Add(new XenoSprite(obj.Creatures[i]));
+            }
+            npcs = new List<XenoSprite>();
+            for (int i = 0; i < obj.NPCs.Count; i++)
+            {
+                npcs.Add(new XenoSprite(obj.NPCs[i]));
+            }
+            source = obj.Source;
+            autoSource = obj.AutoSource;
+            avatar = new XenoSprite(obj.avatar);
+            winx = obj.Winx;
+            winy = obj.Winy;
+            currentQuadrent = obj.CurrentQuadrent;
+            cellWidth = obj.CellWidth;
+            cellHeight = obj.CellHeight;
+            tileWidth = obj.TileWidth;
+            tileHeight = obj.TileHeight;
+            winWidth = obj.WinWidth;
+            winHeight = obj.WinHeight;
+            worldWidth = obj.WorldWidth;
+            worldHeight = obj.WorldHeight;
+            worldLeftSide = obj.worldLeftSide;
+            worldTopSide = obj.worldTopSide;
+            worldRightSide = obj.worldRightSide;
+            worldBottomSide = obj.worldBottomSide;
+            inputDelay = new CoolDown(obj.inputDelay.MaxTicks);
+            interX = obj.InterX;
+            interY = obj.InterY;
+            interWinX = obj.InterWinX;
+            interWinY = obj.InterWinY;
+            interior = obj.interior;
+            rand = new Random((int)System.DateTime.Today.Ticks);
+            delay1 = new Counter(17);
+            delay2 = new Counter(19);//bullet collsion checks
+            delay3 = new Counter(37);//mapGraph updates
+            delay4 = new Counter(47);
+            delay5 = new Counter(97);
+            delay6 = new Counter(137);
+            mgLeft = obj.MGLeft;
+            mgTop = obj.MGTop;
+            shiftRight = obj.ShiftRight;
+            shiftDown = obj.ShiftDown;
+            saveFolderPath = obj.SaveFolderPath;
+            interSource = obj.InterSource;
+            interAutoSource = obj.InterAutoSource;
+            this.planet = obj.Planet;
+            this.isPlanet = obj.IsPlanet;
+            worldScripts = new List<string>();
+            for (int i = 0; i < obj.WorldScripts.Count; i++)
+            {
+                worldScripts.Add(new string(obj.WorldScripts[i].ToCharArray()));
+            }
         }
         /// <summary>
         /// Draws Openworld
@@ -2943,7 +3181,7 @@ namespace XenoLib
                 path += "cell_" + cx + "_" + cy + ".owc";
                 sr = new StreamReader(path);
             }
-            OpenWorldCell cell = new OpenWorldCell(source, autoSource, winWidth, winHeight, sr);
+            OpenWorldCell cell = new OpenWorldCell(source, autoSource, winWidth, winHeight, sr, this);
             sr.Close();
             //cell name is "cell_(cx value)_(cy value).owc"
             return cell;
@@ -4731,6 +4969,27 @@ namespace XenoLib
         {
             get { return isPlanet; }
             set { isPlanet = value; }
+        }
+        /// <summary>
+        /// WorldScripts property
+        /// </summary>
+        public List<string> WorldScripts
+        {
+            get { return worldScripts; }
+        }
+        /// <summary>
+        /// Source property
+        /// </summary>
+        public Texture2D Source
+        {
+            get { return source; }
+        }
+        /// <summary>
+        /// AutoSource property
+        /// </summary>
+        public Texture2D AutoSource
+        {
+            get { return autoSource; }
         }
     }
 }

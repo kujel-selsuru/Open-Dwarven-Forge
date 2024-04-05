@@ -1,6 +1,6 @@
 ﻿//====================================================
 //Written by Kujel Selsuru
-//Last Updated 23/09/23
+//Last Updated 22/12/23
 //====================================================
 using System;
 using System.Collections.Generic;
@@ -189,9 +189,51 @@ namespace XenoLib
             {
                 fillLayer(1, 0, 0);
             }
-            if(fill == false && randomize == true)
+            if (fill == false && randomize == true)
             {
                 randomFillLayer(1, sourceW, sourceH);
+            }
+        }
+        /// <summary>
+        /// XenoTileSys copy construcotr
+        /// </summary>
+        /// <param name="obj">XenoTileSys reference</param>
+        public XenoTileSys(XenoTileSys obj)
+        {
+            this.source = obj.Source;
+            this.width = obj.Width;
+            this.height = obj.Height;
+            this.winx = obj.winx;
+            this.winy = obj.winy;
+            this.winWidth = obj.WinWidth;
+            this.winHeight = obj.WinHeight;
+            tileWidth = obj.TileWidth;
+            tileHeight = obj.TileHeight;
+            srcRect = new Rectangle(obj.srcRect.X, obj.srcRect.Y, obj.srcRect.Width, obj.srcRect.Height);
+            destRect = new Rectangle(obj.destRect.X, obj.destRect.Y, obj.destRect.Width, obj.destRect.Height);
+            layer1 = new XenoTile[obj.Width, obj.Height];
+            for (int x = 0; x < obj.Width; x++)
+            {
+                for (int y = 0; y < obj.Height; y++)
+                {
+                    layer1[x, y] = null;// new Tile(source, x, y, tilew, tileh, 0, 0, true);
+                }
+            }
+            layer2 = new XenoTile[obj.Width, obj.Height];
+            for (int x = 0; x < obj.Width; x++)
+            {
+                for (int y = 0; y < obj.Height; y++)
+                {
+                    layer2[x, y] = null;// new Tile(source, x, y, tilew, tileh, 0, 0, true);
+                }
+            }
+            layer3 = new XenoTile[obj.Width, obj.Height];
+            for (int x = 0; x < obj.Width; x++)
+            {
+                for (int y = 0; y < obj.Height; y++)
+                {
+                    layer3[x, y] = null;// new Tile(source, x, y, tilew, tileh, 0, 0, true);
+                }
             }
         }
         /// <summary>
@@ -534,10 +576,10 @@ namespace XenoLib
         /// Set a tile at speficied location
         /// </summary>
         /// <param name="layer">Layer of new tile</param>
-        /// <param name="x">X position</param>
-        /// <param name="y">Y position</param>
-        /// <param name="nsx">New sx value</param>
-        /// <param name="nsy">New sy value</param>
+        /// <param name="x">X position in tiles</param>
+        /// <param name="y">Y position in tiles</param>
+        /// <param name="nsx">New sx value in pixels</param>
+        /// <param name="nsy">New sy value in pixels</param>
         public void setTile(int layer, int x, int y, int nsx, int nsy)
         {
             if (inDomain(x, y))

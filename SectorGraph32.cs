@@ -330,6 +330,25 @@ namespace XenoLib
             }
         }
         /// <summary>
+        /// SectorGraph64 copy constructor
+        /// </summary>
+        /// <param name="obj">SectorGraph64 reference</param>
+        public SectorGraph64(SectorGraph64 obj)
+        {
+            scalex = obj.scalex;
+            scaley = obj.scaley;
+            graph = new int[8, 8];
+            int temp = 0;
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    graph[x, y] = temp;
+                    temp++;
+                }
+            }
+        }
+        /// <summary>
         /// a value of -1 is considered a none
         /// </summary>
         /// <param name="x">x position</param>

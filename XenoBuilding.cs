@@ -40,6 +40,15 @@ namespace XenoLib
             this.tileHeight = tileHeight;
         }
         /// <summary>
+        /// XenoBuilding copy constructor
+        /// </summary>
+        /// <param name="obj">XenoBuilding reference</param>
+        public XenoBuilding(XenoBuilding obj) : base(obj)
+        {
+            tileWidth = obj.tileWidth;
+            tileHeight = obj.tileHeight;
+        }
+        /// <summary>
         /// XenoBuilding constructor
         /// </summary>
         /// <param name="source">Name of source graphic</param>

@@ -49,6 +49,67 @@ namespace XenoLib
             doodadLayer2 = new DataGrid<SCRTSDoodad>(tileWidth, tileHeight);
         }
         /// <summary>
+        /// RTSCell copy constructor
+        /// </summary>
+        /// <param name="obj">RTSCell reference</param>
+        public RTSCell(RTSCell obj)
+        {
+            tm = new SCTerrainMap(obj.Tiles.TileWidth, obj.Tiles.TileHeight);
+            resourceGrid = new SCRTSResourceField(obj.Tiles.TileWidth, obj.Tiles.TileHeight);
+            fog = new SCFog(obj.fog);
+            cellWin = new Point2D(0, 0);
+            winRect = new Rectangle(0, 0, obj.WinWidth, obj.WinHeight);
+            occupied = new DataGrid<bool>(obj.Occupied.Width, obj.Occupied.Height);
+            for(int x = 0; x < obj.Occupied.Width; x++)
+            {
+                for(int y = 0; y < obj.Occupied.Height; y++)
+                {
+                    occupied.Grid[x, y] = obj.Occupied.Grid[x, y];
+                }
+            }
+            solids = new List<XenoSprite>();
+            for (int i = 0; i < obj.Solids.Count; i++)
+            {
+                solids.Add(new XenoSprite(obj.Solids[i]));
+            }
+            sprites = new List<XenoSprite>();
+            for (int i = 0; i < obj.Sprites.Count; i++)
+            {
+                sprites.Add(new XenoSprite(obj.Sprites[i]));
+            }
+            localCommanders = new List<SCRTSCommander>();
+            for (int i = 0; i < obj.LocalCommanders.Count; i++)
+            {
+                localCommanders.Add(new SCRTSCommander(obj.LocalCommanders[i]));
+            }
+            scripts = new List<SCScript>();
+            for(int i = 0; i < obj.Scripts.Count; i++)
+            {
+                scripts.Add(new SCScript(obj.Scripts[i]));
+            }
+            triggerRects = new List<Rectangle>();
+            for(int i = 0; i < obj.triggerRects.Count; i++)
+            {
+                triggerRects.Add(new Rectangle(obj.triggerRects[i].X, obj.triggerRects[i].Y, 
+                    obj.triggerRects[i].Width, obj.triggerRects[i].Height));
+            }
+            doodadLayer2 = new DataGrid<SCRTSDoodad>(obj.DoodadLayer2.Width, obj.DoodadLayer2.Height);
+            for(int x = 0; x < obj.DoodadLayer2.Width; x++)
+            {
+                for(int y = 0; y < obj.DoodadLayer2.Height; y++)
+                {
+                    if(obj.DoodadLayer2.Grid[x, y] == null)
+                    {
+                        doodadLayer2.Grid[x, y] = null;
+                    }
+                    else
+                    {
+                        doodadLayer2.Grid[x, y] = new SCRTSDoodad(obj.DoodadLayer2.Grid[x, y]);
+                    }
+                }
+            }
+        }
+        /// <summary>
         /// RTSCell from file constructor
         /// </summary>
         /// <param name="tileSrc">Tile source Texture2D reference</param>
@@ -1013,6 +1074,13 @@ namespace XenoLib
             get { return localCommanders; }
             set { localCommanders = value; }
         }
+        /// <summary>
+        /// Scripts property
+        /// </summary>
+        public List<SCScript> Scripts
+        {
+            get { return scripts; }
+        }
     }
 
     public class RTSWorld : OpenWorld
@@ -1041,6 +1109,48 @@ namespace XenoLib
             doodadDB = new GenericBank<SCRTSDoodad>();
             scriptNames = new List<string>();
             occupiedGrid = new DataGrid<bool>(cellWidth* 2, cellHeight * 2);
+            renderList = new List<XenoSprite>();
+        }
+        /// <summary>
+        /// RTSWorld copy constructor
+        /// </summary>
+        /// <param name="obj">RTSWorld reference</param>
+        public RTSWorld(RTSWorld obj) : base(obj)
+        {
+            window = new Rectangle(obj.window.X, obj.window.Y, obj.window.Width, obj.window.Height);
+            commanders = new List<SCRTSCommander>();
+            for(int i = 0; i < obj.Commanders.Count; i++)
+            {
+                commanders.Add( new SCRTSCommander(obj.Commanders[i]));
+            }
+            commanderDB = new GenericBank<SCRTSCommander>();
+            for(int i = 0; i < obj.CommanderDB.Names.Count; i++)
+            {
+                commanderDB.addData(obj.CommanderDB.Names[i], new SCRTSCommander(obj.CommanderDB.getData(i)));
+            }
+            resourceDB = new GenericBank<SCRTSResource>();
+            for(int i = 0; i < obj.ResourceDB.Names.Count; i++)
+            {
+                resourceDB.addData(obj.ResourceDB.Names[i], new SCRTSResource(obj.ResourceDB.getData(i)));
+            }
+            doodadDB = new GenericBank<SCRTSDoodad>();
+            for (int i = 0; i < obj.DoodadDB.Names.Count; i++)
+            {
+                doodadDB.addData(obj.DoodadDB.Names[i], new SCRTSDoodad(obj.DoodadDB.getData(i)));
+            }
+            scriptNames = new List<string>();
+            for(int i = 0; i < obj.ScriptNames.Count; i++)
+            {
+                scriptNames.Add(new string(obj.ScriptNames[i].ToCharArray()));
+            }
+            occupiedGrid = new DataGrid<bool>(cellWidth * 2, cellHeight * 2);
+            for(int x = 0; x < obj.OccupiedGrid.Width; x++)
+            {
+                for(int y = 0; y < obj.OccupiedGrid.Height; y++)
+                {
+                    occupiedGrid.Grid[x, y] = obj.OccupiedGrid.Grid[x, y];
+                }
+            }
             renderList = new List<XenoSprite>();
         }
         /// <summary>
