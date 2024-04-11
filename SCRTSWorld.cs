@@ -13,7 +13,7 @@ using XenoLib;
 
 namespace XenoLib
 {
-    public class RTSCell : OpenWorldCell
+    public class RTSCell : OpenWorldCell2
     {
         //protected
         protected SCTerrainMap tm;
@@ -443,14 +443,6 @@ namespace XenoLib
                     {
                         tiles.Layer1[x, y].draw(renderer, cellWin.IX - shiftRight, cellWin.IY - shiftDown);
                     }
-                    if (tiles.Layer2[x, y] != null)
-                    {
-                        tiles.Layer2[x, y].draw(renderer, cellWin.IX - shiftRight, cellWin.IY - shiftDown);
-                    }
-                    if (tiles.Layer3[x, y] != null)
-                    {
-                        tiles.Layer3[x, y].draw(renderer, cellWin.IX - shiftRight, cellWin.IY - shiftDown);
-                    }
                     if (resourceGrid.Fields.Grid[x, y] != null)
                     {
                         resourceGrid.Fields.Grid[x, y].draw(renderer, cellWin.IX - shiftRight, cellWin.IY - shiftDown);
@@ -587,27 +579,22 @@ namespace XenoLib
         /// Places a tile at specified position and if on layer 1 sets
         /// the terrain value as well
         /// </summary>
-        /// <param name="layer">Layer value</param>
         /// <param name="x">X position in tiles</param>
         /// <param name="y">Y position in tiles</param>
         /// <param name="stamp">SCStamp reference</param>
-        public void placeTile(int layer, int x, int y, SCStamp stamp)
+        public void placeTile(int x, int y, SCStamp stamp)
         {
-            tiles.setTile(layer, x, y, stamp.X, stamp.Y);
-            if(layer == 1)
-            {
-                tm.setValue(x, y, stamp.TV);
-            }
+            tiles.setTile(x, y, stamp.X, stamp.Y);
+            tm.setValue(x, y, stamp.TV);
         }
         /// <summary>
         /// Erases a tile in cell at specified position
         /// </summary>
-        /// <param name="layer">Tile layer</param>
         /// <param name="x">X position in tiles</param>
         /// <param name="y">Y position in tiles</param>
         public void eraseTile(int layer, int x, int y)
         {
-            tiles.eraseTile(layer, x, y);
+            tiles.eraseTile(x, y);
         }
         /// <summary>
         /// Checks if a space is clear
@@ -1019,23 +1006,9 @@ namespace XenoLib
         /// <summary>
         /// Layer1 property
         /// </summary>
-        public XenoTileSys.XenoTile[,] Layer1
+        public XenoTileSys2.XenoTile[,] Layer1
         {
             get { return tiles.Layer1; }
-        }
-        /// <summary>
-        /// Layer2 property
-        /// </summary>
-        public XenoTileSys.XenoTile[,] Layer2
-        {
-            get { return tiles.Layer2; }
-        }
-        /// <summary>
-        /// Layer3 property
-        /// </summary>
-        public XenoTileSys.XenoTile[,] Layer3
-        {
-            get { return tiles.Layer3; }
         }
         /// <summary>
         /// Occupied property
@@ -1083,7 +1056,7 @@ namespace XenoLib
         }
     }
 
-    public class RTSWorld : OpenWorld
+    public class RTSWorld : OpenWorld2
     {
         //protected
         protected Rectangle window;
@@ -1979,35 +1952,34 @@ namespace XenoLib
         /// <param name="y">Y position in pixels</param>
         /// <param name="sx">New SX value in pixels</param>
         /// <param name="sy">New SY value in pixels</param>
-        /// <param name="layer">Tile layer value</param>
-        public void setTile(int x, int y, int sx, int sy, int layer = 1)
+        public void setTile(int x, int y, int sx, int sy)
         {
             if(alpha != null)
             {
                 if (alpha.inCell(x, y) == true)
                 {
-                    alpha.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                    alpha.Tiles.setTile(x / tileWidth, y / tileHeight, sx, sy);
                 }
             }
             else if (beta != null)
             {
                 if (beta.inCell(x, y) == true)
                 {
-                    beta.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                    beta.Tiles.setTile(x / tileWidth, y / tileHeight, sx, sy);
                 }
             }
             else if (delta != null)
             {
                 if (delta.inCell(x, y) == true)
                 {
-                    delta.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                    delta.Tiles.setTile(x / tileWidth, y / tileHeight, sx, sy);
                 }
             }
             else if (gamma != null)
             {
                 if (gamma.inCell(x, y) == true)
                 {
-                    gamma.Tiles.setTile(layer, x / tileWidth, y / tileHeight, sx, sy);
+                    gamma.Tiles.setTile(x / tileWidth, y / tileHeight, sx, sy);
                 }
             }
         }
@@ -2062,6 +2034,19 @@ namespace XenoLib
             {
                 ((RTSCell)gamma).updateOccupied();
             }
+        }
+        /// <summary>
+        /// Copies a single cell into alpha from a RTSCell reference
+        /// sets it to interior
+        /// </summary>
+        /// <param name="cell">RTSCell reference</param>
+        public void setSingleCell(RTSCell cell)
+        {
+            alpha = new RTSCell(cell);
+            alpha.IsInteriorCell = true;
+            beta = null;
+            delta = null;
+            gamma = null;
         }
         /// <summary>
         /// Commanders property

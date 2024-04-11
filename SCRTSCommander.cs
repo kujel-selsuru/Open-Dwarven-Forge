@@ -2349,7 +2349,7 @@ namespace XenoLib
         /// <param name="y">Y position</param>
         /// <param name="scalerx">X scaler value, assume 32</param>
         /// <param name="scalery">Y scaler value, assume 32</param>
-        public void spawnSquad(OpenWorld world, float x, float y, float scalerx = 32f, float scalery = 32f)
+        public void spawnSquad(OpenWorld2 world, float x, float y, float scalerx = 32f, float scalery = 32f)
         {
             SCRTSUnit cre1 = null;  
             SCRTSUnit cre2 = null;
@@ -2533,7 +2533,7 @@ namespace XenoLib
         /// <param name="tier">Base power tier</param>
         /// <param name="size">Base size</param>
         /// <param name="projPath">Project path</param>
-        public void spawnBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, string size, RTSCell currentCell)
+        public void spawnBase(OpenWorld2 world, int x, int y, float scaleX, float scaleY, int tier, string size, RTSCell currentCell)
         {
             switch(size)
             {
@@ -2559,7 +2559,7 @@ namespace XenoLib
         /// <param name="workerName">Worker unit name</param>
         /// <param name="commandCenterName">Command center building name</param>
         /// <param name="citadelName">Citadel doodad name</param>
-        public void spawnPlayer(OpenWorld world, int x, int y, float scaleX = 32f, float scaleY = 32f, 
+        public void spawnPlayer(OpenWorld2 world, int x, int y, float scaleX = 32f, float scaleY = 32f, 
             string workerName = "worker", string commandCenterName = "mobile command center", string citadelName = "citadel entrence")
         {
             //spawn citadel
@@ -2636,7 +2636,7 @@ namespace XenoLib
         /// <param name="target">RTSObject reference</param>
         /// <param name="ut">UNITTYPE value</param>
         /// <param name="bt">BUILDINGTYPE value</param>
-        public void commandObject(OpenWorld world, int x, int y, int index, string cmd, OBJECTTYPE objType, SCRTSUnit target = null,
+        public void commandObject(OpenWorld2 world, int x, int y, int index, string cmd, OBJECTTYPE objType, SCRTSUnit target = null,
             UNITTYPES ut = UNITTYPES.NONE, BUILDINGTYPES bt = BUILDINGTYPES.NONE)
         {
             switch(objType)
@@ -3076,9 +3076,9 @@ namespace XenoLib
         /// <param name="scaleY">Y scaler value</param>
         /// <param name="tier">Base power tier</param>
         /// <param name="currentCell">RTSCell reference</param>
-        protected void addSmallBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        protected void addSmallBase(OpenWorld2 world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
         {
-            OpenWorldCell cell = currentCell;
+            OpenWorldCell2 cell = currentCell;
             SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
 
             ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
@@ -3565,9 +3565,9 @@ namespace XenoLib
         /// <param name="scaleY">Y scaler value</param>
         /// <param name="tier">Base power tier</param>
         /// <param name="currentCell">RTSCell reference</param>
-        protected void addMediumBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        protected void addMediumBase(OpenWorld2 world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
         {
-            OpenWorldCell cell = currentCell;
+            OpenWorldCell2 cell = currentCell;
             SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
 
             ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
@@ -4139,9 +4139,9 @@ namespace XenoLib
         /// <param name="scaleY">Y scaler value</param>
         /// <param name="tier">Base power tier</param>
         /// <param name="currentCell">RTSCell reference</param>
-        protected void addLargeBase(OpenWorld world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
+        protected void addLargeBase(OpenWorld2 world, int x, int y, float scaleX, float scaleY, int tier, RTSCell currentCell)
         {
-            OpenWorldCell cell = currentCell;
+            OpenWorldCell2 cell = currentCell;
             SCRTSBuilding bld = ((RTSWorld)world).Commanders[1].BuildingDB.getData("WEF command center");
 
             ((RTSCell)cell).clearRadiusInDoodadLayer2(x, y, 13);
