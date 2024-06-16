@@ -184,6 +184,8 @@ namespace XenoLib
                     return "REFINORY";
                 case BUILDINGTYPES.TURRET:
                     return "TURRET";
+                case BUILDINGTYPES.SUPPORT:
+                    return "SUPPORT";
             }
             return "NONE";
         }
@@ -212,6 +214,8 @@ namespace XenoLib
                     return BUILDINGTYPES.REFINORY;
                 case "TURRET":
                     return BUILDINGTYPES.TURRET;
+                case "SUPPORT":
+                    return BUILDINGTYPES.SUPPORT;
             }
             return BUILDINGTYPES.NONE;
         }
@@ -226,6 +230,8 @@ namespace XenoLib
             {
                 case ACTIONS.BEAM:
                     return "BEAM";
+                case ACTIONS.LASER:
+                    return "LASER";
                 case ACTIONS.BOMB:
                     return "BOMB";
                 case ACTIONS.BUFF:
@@ -260,6 +266,8 @@ namespace XenoLib
             {
                 case "BEAM":
                     return ACTIONS.BEAM;
+                case "LASER":
+                    return ACTIONS.LASER;
                 case "BOMB":
                     return ACTIONS.BOMB;
                 case "BUFF":
@@ -452,6 +460,8 @@ namespace XenoLib
                     return "SELF";
                 case ABILITIES.SHOOT:
                     return "SHOOT";
+                case ABILITIES.ANTIAIR:
+                    return "ANTIAIR";
                 case ABILITIES.TARGET:
                     return "TARGET";
                 case ABILITIES.TRAIN:
@@ -477,6 +487,8 @@ namespace XenoLib
                 case "SELF":
                     return ABILITIES.SELF;
                 case "SHOOT":
+                    return ABILITIES.ANTIAIR;
+                case "ANTIAIR":
                     return ABILITIES.SHOOT;
                 case "TARGET":
                     return ABILITIES.TARGET;
